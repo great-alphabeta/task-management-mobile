@@ -1,7 +1,20 @@
 import "../../global.css";
 
-import { Stack } from "expo-router";
+import { LexendDeca_400Regular, useFonts } from '@expo-google-fonts/lexend-deca';
+import { SplashScreen, Stack } from 'expo-router';
+import { useEffect } from 'react';
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    LexendDeca_400Regular,
+  });
+
+  useEffect(() => {
+    if (!fontsLoaded) return;
+    SplashScreen.hideAsync();
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
   return <Stack />;
 }
