@@ -33,16 +33,20 @@ export default function RoundedButton({
   isFullWidth = true,
   primary = true,
   rightIcon = null,
+  className = "",
+  size = "md",
 }: {
   text: string;
   isFullWidth?: boolean;
   primary?: boolean;
   rightIcon?: React.ReactNode | null;
+  className?: string;
+  size?: "sm" | "md" | "lg";
 }) {
   return (
     <Pressable
       style={{
-        height: 52,
+        height: size === "sm" ? 38 : size === "md" ? 52 : 64,
         width: isFullWidth ? "100%" : undefined,
       }}
     >
@@ -61,8 +65,9 @@ export default function RoundedButton({
           alignItems: "center",
           justifyContent: "center",
         }}
+        className={className}
       >
-        <Text className={`${primary ? "text-[#FFFFFF]" : "text-primary"} font-lexend-semibold text-lg`}>{text}</Text>
+        <Text className={`${primary ? "text-[#FFFFFF]" : "text-primary"} font-lexend-semibold ${size === "sm" ? "text-base" : size === "md" ? "text-lg" : "text-xl"}`}>{text}</Text>
         {rightIcon && <View className="absolute right-[22px]">{rightIcon}</View>}
       </View>
     </Pressable>

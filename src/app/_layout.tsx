@@ -3,6 +3,7 @@ import "../../global.css";
 import { LexendDeca_400Regular, LexendDeca_600SemiBold, LexendDeca_700Bold, useFonts } from '@expo-google-fonts/lexend-deca';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -18,7 +19,12 @@ export default function RootLayout() {
 
   if (!fontsLoaded) return null;
 
-  return <Stack>
-    <Stack.Screen name="OnBoarding" options={{ headerShown: false }} />
-  </Stack>;
+  return (
+    <SafeAreaView className="flex-1">
+      <Stack screenOptions={{ headerShown: false }} initialRouteName="(base)">
+        <Stack.Screen name="(base)" />
+        <Stack.Screen name="OnBoarding" />
+      </Stack>
+    </SafeAreaView>
+  );
 }
