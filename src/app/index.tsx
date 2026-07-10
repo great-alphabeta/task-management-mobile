@@ -1,11 +1,14 @@
-import { Text, View } from "react-native";
+import CalendarItem from "@/components/CalendarItem";
+import { View } from "react-native";
 
 export default function Index() {
   return (
-    <View className="bg-primary">
-      <Text className="text-white font-lexend text-xl p-md">
-        Edit src/app/index.tsx to edit this screen.
-      </Text>
+    <View className="flex flex-row gap-sm">
+      <CalendarItem date={new Date('2026-07-09')}/>
+      <CalendarItem date={new Date('2026-07-10')}/>
+      <CalendarItem date={new Date('2026-07-11')}/>
+      <CalendarItem date={new Date('2026-07-12')}/>
+      <CalendarItem date={new Date('2026-07-13')}/>
     </View>
   );
 }

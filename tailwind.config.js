@@ -11,7 +11,9 @@ module.exports = {
         white: '#FAFAFA',
       },
       fontFamily: {
-        lexend: ['LexendDeca_400Regular'],
+        'lexend': ['LexendDeca_400Regular'],
+        'lexend-semibold': ['LexendDeca_600SemiBold'],
+        'lexend-bold': ['LexendDeca_700Bold'],
       },
       fontSize: {
         'sm': ['11px'],
