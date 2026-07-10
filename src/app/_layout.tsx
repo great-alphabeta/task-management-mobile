@@ -18,5 +18,7 @@ export default function RootLayout() {
 
   if (!fontsLoaded) return null;
 
-  return <Stack />;
+  return <Stack>
+    <Stack.Screen name="OnBoarding" options={{ headerShown: false }} />
+  </Stack>;
 }
