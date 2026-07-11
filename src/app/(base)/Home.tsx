@@ -8,7 +8,7 @@ import type { Project, Task, TaskGroupId } from "@/types/database";
 import { CircularProgressIndicator, Host } from '@expo/ui/jetpack-compose';
 import { graphicsLayer, size } from '@expo/ui/jetpack-compose/modifiers';
 import { MaterialIcons } from '@react-native-vector-icons/material-icons';
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, router } from "expo-router";
 import { useCallback, useState } from "react";
 import { Image, ScrollView, Text, View } from "react-native";
 
@@ -140,7 +140,14 @@ export default function Home() {
       <View className="bg-primary rounded-xl p-xl flex flex-row gap-2xl items-center">
         <View className="flex flex-col gap-xl w-1/2">
           <Text className="font-lexend text-white">Your today’s task{"\n"}almost done!</Text>
-          <RoundedButton text="View Task" primary={false} className="px-[20px] py-[10px]" size="sm" />
+          <RoundedButton
+            text="View Task"
+            primary={false}
+            className="px-[20px] py-[10px]"
+            size="sm"
+            isFullWidth={false}
+            onPress={() => router.push("/(base)/TodayTask")}
+          />
         </View>
         <View
           style={{ width: PROGRESS_SIZE, height: PROGRESS_SIZE }}

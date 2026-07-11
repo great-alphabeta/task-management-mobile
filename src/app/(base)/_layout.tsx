@@ -5,7 +5,7 @@ import { ImageBackground, View } from "react-native";
 export default function BaseLayout() {
   const segments = useSegments();
   const currentScreen = segments.at(-1);
-  const showNavbar = currentScreen !== "AddProject";
+  const showNavbar = currentScreen !== "AddProject" && currentScreen !== "AddTask";
 
   return (
     <ImageBackground
@@ -21,7 +21,9 @@ export default function BaseLayout() {
           }}
         >
           <Stack.Screen name="AddProject" />
+          <Stack.Screen name="AddTask" />
           <Stack.Screen name="Home" />
+          <Stack.Screen name="TodayTask" />
         </Stack>
       </View>
       {showNavbar && (
