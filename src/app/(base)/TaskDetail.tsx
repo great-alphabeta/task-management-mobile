@@ -11,7 +11,7 @@ import { deleteTask, getTaskById, updateTask } from "@/db/tasks";
 import type { Project, TaskGroupId, TaskStatus } from "@/types/database";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
-import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
+import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
 
 type ProjectOption = Project & {
@@ -181,7 +181,7 @@ export default function TaskDetail() {
   if (isLoading) {
     return (
       <ScreenBackground>
-        <View className="flex flex-1 gap-xl">
+        <View className="flex flex-1">
           <Header title="Task Detail" />
         </View>
       </ScreenBackground>
@@ -190,123 +190,130 @@ export default function TaskDetail() {
 
   return (
     <ScreenBackground>
-      <View className="flex flex-1 gap-xl">
-      <Header title="Task Detail" />
-      <View className="w-full">
-        {projects.length > 0 && selectedProject ? (
-          <SelectDropdown
-            data={projects}
-            onSelect={(selectedItem: ProjectOption) => {
-              setSelectedProject(selectedItem);
-            }}
-            renderButton={() => (
-              <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-                <View
-                  className="rounded-lg w-[30px] h-[30px] items-center justify-center"
-                  style={{ backgroundColor: selectedProject.bgColor }}
-                >
-                  {selectedProject.logo_uri ? (
-                    <Image
-                      source={{ uri: selectedProject.logo_uri }}
-                      className="w-[30px] h-[30px] rounded-lg"
-                    />
-                  ) : (
-                    <selectedProject.icon width={24} height={24} color={selectedProject.iconColor} />
-                  )}
-                </View>
-                <View className="flex flex-col flex-1">
-                  <Text className="text-secondary font-lexend text-sm">Project</Text>
-                  <Text className="text-black font-lexend-semibold">{selectedProject.project_name}</Text>
-                </View>
-                <View>
-                  <DownIcon width={24} height={24} color="black" />
-                </View>
-              </View>
-            )}
-            renderItem={(project: ProjectOption) => (
-              <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-                <View
-                  className="rounded-lg w-[30px] h-[30px] items-center justify-center"
-                  style={{ backgroundColor: project.bgColor }}
-                >
-                  {project.logo_uri ? (
-                    <Image
-                      source={{ uri: project.logo_uri }}
-                      className="w-[30px] h-[30px] rounded-lg"
-                    />
-                  ) : (
-                    <project.icon width={24} height={24} color={project.iconColor} />
-                  )}
-                </View>
-                <Text className="text-black font-lexend-semibold w-full">{project.project_name}</Text>
-              </View>
-            )}
-            showsVerticalScrollIndicator={false}
-          />
-        ) : (
-          <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
-            <Text className="text-secondary font-lexend text-sm">Project</Text>
-            <Text className="font-lexend text-black">No projects available.</Text>
-          </View>
-        )}
-      </View>
-      <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
-        <Text className="text-secondary font-lexend text-sm">Task Name</Text>
-        <TextInput
-          cursorColor="#7c3aed"
-          value={taskName}
-          onChangeText={setTaskName}
-          className="font-lexend text-black"
-        />
-      </View>
-      <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
-        <Text className="text-secondary font-lexend text-sm">Description</Text>
-        <TextInput
-          cursorColor="#7c3aed"
-          value={description}
-          onChangeText={setDescription}
-          className="font-lexend text-black text-sm"
-          multiline={true}
-          numberOfLines={4}
-        />
-      </View>
-      <View className="w-full">
-        <SelectDropdown
-          data={STATUS_OPTIONS}
-          onSelect={(selectedItem: StatusOption) => {
-            setStatus(selectedItem.value);
-          }}
-          renderButton={() => (
-            <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-              <View className="flex flex-col flex-1">
-                <Text className="text-secondary font-lexend text-sm">Status</Text>
-                <Text className="text-black font-lexend-semibold">
-                  {getTaskStatusStyle(selectedStatus.value).label}
-                </Text>
-              </View>
-              <View>
-                <DownIcon width={24} height={24} color="black" />
-              </View>
-            </View>
-          )}
-          renderItem={(option: StatusOption) => (
-            <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-              <TaskStatusBadge status={option.value} />
-            </View>
-          )}
+      <View className="flex flex-1">
+        <Header title="Task Detail" />
+        <ScrollView
+          className="flex-1"
+          contentContainerClassName="flex flex-col gap-xl pb-xl"
           showsVerticalScrollIndicator={false}
-        />
-      </View>
-      <RoundedButton
-        text={isSaving ? "Saving..." : "Save Changes"}
-        onPress={handleSave}
-        disabled={isSaving || isDeleting || projects.length === 0}
-      />
-      <Pressable onPress={handleDelete} disabled={isSaving || isDeleting}>
-        <Text className="text-center font-lexend-semibold text-[#FF4D4F]">
-          {isDeleting ? "Deleting..." : "Delete Task"}
-        </Text>
-      </Pressable>
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="w-full">
+            {projects.length > 0 && selectedProject ? (
+              <SelectDropdown
+                data={projects}
+                onSelect={(selectedItem: ProjectOption) => {
+                  setSelectedProject(selectedItem);
+                }}
+                renderButton={() => (
+                  <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+                    <View
+                      className="rounded-lg w-[30px] h-[30px] items-center justify-center"
+                      style={{ backgroundColor: selectedProject.bgColor }}
+                    >
+                      {selectedProject.logo_uri ? (
+                        <Image
+                          source={{ uri: selectedProject.logo_uri }}
+                          className="w-[30px] h-[30px] rounded-lg"
+                        />
+                      ) : (
+                        <selectedProject.icon width={24} height={24} color={selectedProject.iconColor} />
+                      )}
+                    </View>
+                    <View className="flex flex-col flex-1">
+                      <Text className="text-secondary font-lexend text-sm">Project</Text>
+                      <Text className="text-black font-lexend-semibold">{selectedProject.project_name}</Text>
+                    </View>
+                    <View>
+                      <DownIcon width={24} height={24} color="black" />
+                    </View>
+                  </View>
+                )}
+                renderItem={(project: ProjectOption) => (
+                  <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+                    <View
+                      className="rounded-lg w-[30px] h-[30px] items-center justify-center"
+                      style={{ backgroundColor: project.bgColor }}
+                    >
+                      {project.logo_uri ? (
+                        <Image
+                          source={{ uri: project.logo_uri }}
+                          className="w-[30px] h-[30px] rounded-lg"
+                        />
+                      ) : (
+                        <project.icon width={24} height={24} color={project.iconColor} />
+                      )}
+                    </View>
+                    <Text className="text-black font-lexend-semibold w-full">{project.project_name}</Text>
+                  </View>
+                )}
+                showsVerticalScrollIndicator={false}
+              />
+            ) : (
+              <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
+                <Text className="text-secondary font-lexend text-sm">Project</Text>
+                <Text className="font-lexend text-black">No projects available.</Text>
+              </View>
+            )}
+          </View>
+          <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
+            <Text className="text-secondary font-lexend text-sm">Task Name</Text>
+            <TextInput
+              cursorColor="#7c3aed"
+              value={taskName}
+              onChangeText={setTaskName}
+              className="font-lexend text-black"
+            />
+          </View>
+          <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
+            <Text className="text-secondary font-lexend text-sm">Description</Text>
+            <TextInput
+              cursorColor="#7c3aed"
+              value={description}
+              onChangeText={setDescription}
+              className="font-lexend text-black text-sm"
+              multiline={true}
+              numberOfLines={4}
+            />
+          </View>
+          <View className="w-full">
+            <SelectDropdown
+              data={STATUS_OPTIONS}
+              onSelect={(selectedItem: StatusOption) => {
+                setStatus(selectedItem.value);
+              }}
+              renderButton={() => (
+                <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+                  <View className="flex flex-col flex-1">
+                    <Text className="text-secondary font-lexend text-sm">Status</Text>
+                    <Text className="text-black font-lexend-semibold">
+                      {getTaskStatusStyle(selectedStatus.value).label}
+                    </Text>
+                  </View>
+                  <View>
+                    <DownIcon width={24} height={24} color="black" />
+                  </View>
+                </View>
+              )}
+              renderItem={(option: StatusOption) => (
+                <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+                  <TaskStatusBadge status={option.value} />
+                </View>
+              )}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
+          <RoundedButton
+            text={isSaving ? "Saving..." : "Save Changes"}
+            onPress={handleSave}
+            disabled={isSaving || isDeleting || projects.length === 0}
+          />
+          <Pressable onPress={handleDelete} disabled={isSaving || isDeleting}>
+            <Text className="text-center font-lexend-semibold text-[#FF4D4F]">
+              {isDeleting ? "Deleting..." : "Delete Task"}
+            </Text>
+          </Pressable>
+        </ScrollView>
       </View>
     </ScreenBackground>
   );

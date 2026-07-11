@@ -12,7 +12,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
+import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import SelectDropdown from 'react-native-select-dropdown';
 
 type TaskGroupOption = {
@@ -120,128 +120,135 @@ export default function AddProject() {
 
   return (
     <ScreenBackground>
-      <View className="flex flex-1 gap-xl">
-      <Header title="Add Project" />
-      <View className="w-full">
-        <SelectDropdown
-          data={taskGroups}
-          onSelect={(selectedItem: TaskGroupOption) => {
-            setSelectedTaskGroup(selectedItem);
-          }}
-          renderButton={() => {
-            return (
-              <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-                <View className={`rounded-lg w-[30px] h-[30px] items-center justify-center`} style={{ backgroundColor: selectedTaskGroup.bgColor }}>
-                  <selectedTaskGroup.icon width={24} height={24} color={selectedTaskGroup.iconColor} />
-                </View>
-                <View className="flex flex-col flex-1">
-                  <Text className="text-secondary font-lexend text-sm">Task Group</Text>
-                  <Text className="text-black font-lexend-semibold">{selectedTaskGroup.title}</Text>
-                </View>
-                <View>
-                  <DownIcon width={24} height={24} color="black" />
-                </View>
-              </View>
-            );
-          }}
-          renderItem={(taskGroup: TaskGroupOption) => {
-            return (
-              <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-                <View className={`rounded-lg w-[30px] h-[30px] items-center justify-center`} style={{ backgroundColor: taskGroup.bgColor }}>
-                  <taskGroup.icon width={24} height={24} color={taskGroup.iconColor} />
-                </View>
-                <Text className="text-black font-lexend-semibold w-full">{taskGroup.title}</Text>
-              </View>
-            );
-          }}
+      <View className="flex flex-1">
+        <Header title="Add Project" />
+        <ScrollView
+          className="flex-1"
+          contentContainerClassName="flex flex-col gap-xl pb-xl"
           showsVerticalScrollIndicator={false}
-        />
-      </View>
-      <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
-        <Text className="text-secondary font-lexend text-sm">Project Name</Text>
-        <TextInput
-          cursorColor="#7c3aed"
-          value={projectName}
-          onChangeText={handleProjectNameChange}
-          className="font-lexend text-black"
-        />
-      </View>
-      <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
-        <Text className="text-secondary font-lexend text-sm">Description</Text>
-        <TextInput
-          cursorColor="#7c3aed"
-          value={description}
-          onChangeText={handleDescriptionChange}
-          className="font-lexend text-black text-sm"
-          multiline={true}
-          numberOfLines={4}
-        />
-      </View>
-      <Pressable onPress={() => setStartDatePickerShow(true)}>
-        <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-          <CalendarIcon width={24} height={24} color="#5F33E1" />
-          <View className="flex flex-col flex-1">
-            <Text className="text-secondary font-lexend text-sm">Start Date</Text>
-            <Text className="text-black font-lexend">{String(startDate.getDate()).padStart(2, "0")} {startDate.toLocaleString('en-US', { month: 'short' })}, {startDate.getFullYear()}</Text>
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="w-full">
+            <SelectDropdown
+              data={taskGroups}
+              onSelect={(selectedItem: TaskGroupOption) => {
+                setSelectedTaskGroup(selectedItem);
+              }}
+              renderButton={() => {
+                return (
+                  <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+                    <View className={`rounded-lg w-[30px] h-[30px] items-center justify-center`} style={{ backgroundColor: selectedTaskGroup.bgColor }}>
+                      <selectedTaskGroup.icon width={24} height={24} color={selectedTaskGroup.iconColor} />
+                    </View>
+                    <View className="flex flex-col flex-1">
+                      <Text className="text-secondary font-lexend text-sm">Task Group</Text>
+                      <Text className="text-black font-lexend-semibold">{selectedTaskGroup.title}</Text>
+                    </View>
+                    <View>
+                      <DownIcon width={24} height={24} color="black" />
+                    </View>
+                  </View>
+                );
+              }}
+              renderItem={(taskGroup: TaskGroupOption) => {
+                return (
+                  <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+                    <View className={`rounded-lg w-[30px] h-[30px] items-center justify-center`} style={{ backgroundColor: taskGroup.bgColor }}>
+                      <taskGroup.icon width={24} height={24} color={taskGroup.iconColor} />
+                    </View>
+                    <Text className="text-black font-lexend-semibold w-full">{taskGroup.title}</Text>
+                  </View>
+                );
+              }}
+              showsVerticalScrollIndicator={false}
+            />
           </View>
-          <View>
-            <DownIcon width={24} height={24} color="black" />
+          <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
+            <Text className="text-secondary font-lexend text-sm">Project Name</Text>
+            <TextInput
+              cursorColor="#7c3aed"
+              value={projectName}
+              onChangeText={handleProjectNameChange}
+              className="font-lexend text-black"
+            />
           </View>
-        </View>
-      </Pressable>
-      <Pressable onPress={() => setEndDatePickerShow(true)}>
-        <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-          <CalendarIcon width={24} height={24} color="#5F33E1" />
-          <View className="flex flex-col flex-1">
-            <Text className="text-secondary font-lexend text-sm">End Date</Text>
-            <Text className="text-black font-lexend">{String(endDate.getDate()).padStart(2, "0")} {endDate.toLocaleString('en-US', { month: 'short' })}, {endDate.getFullYear()}</Text>
+          <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
+            <Text className="text-secondary font-lexend text-sm">Description</Text>
+            <TextInput
+              cursorColor="#7c3aed"
+              value={description}
+              onChangeText={handleDescriptionChange}
+              className="font-lexend text-black text-sm"
+              multiline={true}
+              numberOfLines={4}
+            />
           </View>
-          <View>
-            <DownIcon width={24} height={24} color="black" />
+          <Pressable onPress={() => setStartDatePickerShow(true)}>
+            <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+              <CalendarIcon width={24} height={24} color="#5F33E1" />
+              <View className="flex flex-col flex-1">
+                <Text className="text-secondary font-lexend text-sm">Start Date</Text>
+                <Text className="text-black font-lexend">{String(startDate.getDate()).padStart(2, "0")} {startDate.toLocaleString('en-US', { month: 'short' })}, {startDate.getFullYear()}</Text>
+              </View>
+              <View>
+                <DownIcon width={24} height={24} color="black" />
+              </View>
+            </View>
+          </Pressable>
+          <Pressable onPress={() => setEndDatePickerShow(true)}>
+            <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+              <CalendarIcon width={24} height={24} color="#5F33E1" />
+              <View className="flex flex-col flex-1">
+                <Text className="text-secondary font-lexend text-sm">End Date</Text>
+                <Text className="text-black font-lexend">{String(endDate.getDate()).padStart(2, "0")} {endDate.toLocaleString('en-US', { month: 'short' })}, {endDate.getFullYear()}</Text>
+              </View>
+              <View>
+                <DownIcon width={24} height={24} color="black" />
+              </View>
+            </View>
+          </Pressable>
+          <View className="flex flex-row gap-sm items-center justify-between p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+            <View className="flex flex-row gap-sm items-center">
+              {image && <Image source={{ uri: image }} className="w-[44px] h-[44px] rounded-full" />}
+            </View>
+            <Pressable onPress={() => pickImage()} className="bg-[#EDE8FF] rounded-lg p-sm">
+              <Text className="text-primary font-lexend">Change Logo</Text>
+            </Pressable>
           </View>
-        </View>
-      </Pressable>
-      <View className="flex flex-row gap-sm items-center justify-between p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-        <View className="flex flex-row gap-sm items-center">
-          {image && <Image source={{ uri: image }} className="w-[44px] h-[44px] rounded-full" />}
-        </View>
-        <Pressable onPress={() => pickImage()} className="bg-[#EDE8FF] rounded-lg p-sm">
-          <Text className="text-primary font-lexend">Change Logo</Text>
-        </Pressable>
-      </View>
-      <RoundedButton
-        text={isSaving ? "Saving..." : "Add Project"}
-        onPress={handleAddProject}
-        disabled={isSaving}
-      />
-      {startDatePickerShow && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={startDate}
-          mode='date'
-          onValueChange={(_event, selectedDate) => {
-            if (selectedDate) {
-              setStartDate(selectedDate);
-            }
-            setStartDatePickerShow(false);
-          }}
-          onDismiss={() => setStartDatePickerShow(false)}
-        />
-      )}
-      {endDatePickerShow && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={endDate}
-          mode='date'
-          onValueChange={(_event, selectedDate) => {
-            if (selectedDate) {
-              setEndDate(selectedDate);
-            }
-            setEndDatePickerShow(false);
-          }}
-          onDismiss={() => setEndDatePickerShow(false)}
-        />
-      )}
+          <RoundedButton
+            text={isSaving ? "Saving..." : "Add Project"}
+            onPress={handleAddProject}
+            disabled={isSaving}
+          />
+        </ScrollView>
+        {startDatePickerShow && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={startDate}
+            mode='date'
+            onValueChange={(_event, selectedDate) => {
+              if (selectedDate) {
+                setStartDate(selectedDate);
+              }
+              setStartDatePickerShow(false);
+            }}
+            onDismiss={() => setStartDatePickerShow(false)}
+          />
+        )}
+        {endDatePickerShow && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={endDate}
+            mode='date'
+            onValueChange={(_event, selectedDate) => {
+              if (selectedDate) {
+                setEndDate(selectedDate);
+              }
+              setEndDatePickerShow(false);
+            }}
+            onDismiss={() => setEndDatePickerShow(false)}
+          />
+        )}
       </View>
     </ScreenBackground>
   );

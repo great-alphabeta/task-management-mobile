@@ -1,5 +1,6 @@
 import BookIcon from "@/assets/svg/book.svg";
 import BriefcaseIcon from "@/assets/svg/briefcase.svg";
+import CalendarIcon from "@/assets/svg/calendar.svg";
 import ClockIcon from "@/assets/svg/clock.svg";
 import DownIcon from "@/assets/svg/down.svg";
 import UserIcon from "@/assets/svg/user.svg";
@@ -12,10 +13,9 @@ import { getSelectedTaskDateKey } from "@/store/selectedTaskDate";
 import type { Project, TaskGroupId } from "@/types/database";
 import { combineDateAndTime, formatDisplayDate } from "@/utils/date";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import CalendarIcon from "@/assets/svg/calendar.svg";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
+import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
 
 type ProjectOption = Project & {
@@ -138,150 +138,157 @@ export default function AddTask() {
 
   return (
     <ScreenBackground>
-      <View className="flex flex-1 gap-xl">
-      <Header title="Add Task" />
-      <View className="w-full">
-        {projects.length > 0 && selectedProject ? (
-          <SelectDropdown
-            data={projects}
-            onSelect={(selectedItem: ProjectOption) => {
-              setSelectedProject(selectedItem);
-            }}
-            renderButton={() => (
-              <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-                <View
-                  className="rounded-lg w-[30px] h-[30px] items-center justify-center"
-                  style={{ backgroundColor: selectedProject.bgColor }}
-                >
-                  {selectedProject.logo_uri ? (
-                    <Image
-                      source={{ uri: selectedProject.logo_uri }}
-                      className="w-[30px] h-[30px] rounded-lg"
-                    />
-                  ) : (
-                    <selectedProject.icon width={24} height={24} color={selectedProject.iconColor} />
-                  )}
-                </View>
-                <View className="flex flex-col flex-1">
-                  <Text className="text-secondary font-lexend text-sm">Project</Text>
-                  <Text className="text-black font-lexend-semibold">{selectedProject.project_name}</Text>
-                </View>
-                <View>
-                  <DownIcon width={24} height={24} color="black" />
-                </View>
+      <View className="flex flex-1">
+        <Header title="Add Task" />
+        <ScrollView
+          className="flex-1"
+          contentContainerClassName="flex flex-col gap-xl pb-xl"
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="w-full">
+            {projects.length > 0 && selectedProject ? (
+              <SelectDropdown
+                data={projects}
+                onSelect={(selectedItem: ProjectOption) => {
+                  setSelectedProject(selectedItem);
+                }}
+                renderButton={() => (
+                  <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+                    <View
+                      className="rounded-lg w-[30px] h-[30px] items-center justify-center"
+                      style={{ backgroundColor: selectedProject.bgColor }}
+                    >
+                      {selectedProject.logo_uri ? (
+                        <Image
+                          source={{ uri: selectedProject.logo_uri }}
+                          className="w-[30px] h-[30px] rounded-lg"
+                        />
+                      ) : (
+                        <selectedProject.icon width={24} height={24} color={selectedProject.iconColor} />
+                      )}
+                    </View>
+                    <View className="flex flex-col flex-1">
+                      <Text className="text-secondary font-lexend text-sm">Project</Text>
+                      <Text className="text-black font-lexend-semibold">{selectedProject.project_name}</Text>
+                    </View>
+                    <View>
+                      <DownIcon width={24} height={24} color="black" />
+                    </View>
+                  </View>
+                )}
+                renderItem={(project: ProjectOption) => (
+                  <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+                    <View
+                      className="rounded-lg w-[30px] h-[30px] items-center justify-center"
+                      style={{ backgroundColor: project.bgColor }}
+                    >
+                      {project.logo_uri ? (
+                        <Image
+                          source={{ uri: project.logo_uri }}
+                          className="w-[30px] h-[30px] rounded-lg"
+                        />
+                      ) : (
+                        <project.icon width={24} height={24} color={project.iconColor} />
+                      )}
+                    </View>
+                    <Text className="text-black font-lexend-semibold w-full">{project.project_name}</Text>
+                  </View>
+                )}
+                showsVerticalScrollIndicator={false}
+              />
+            ) : (
+              <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
+                <Text className="text-secondary font-lexend text-sm">Project</Text>
+                <Text className="font-lexend text-black">No projects available. Create a project first.</Text>
               </View>
             )}
-            renderItem={(project: ProjectOption) => (
-              <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-                <View
-                  className="rounded-lg w-[30px] h-[30px] items-center justify-center"
-                  style={{ backgroundColor: project.bgColor }}
-                >
-                  {project.logo_uri ? (
-                    <Image
-                      source={{ uri: project.logo_uri }}
-                      className="w-[30px] h-[30px] rounded-lg"
-                    />
-                  ) : (
-                    <project.icon width={24} height={24} color={project.iconColor} />
-                  )}
-                </View>
-                <Text className="text-black font-lexend-semibold w-full">{project.project_name}</Text>
-              </View>
-            )}
-            showsVerticalScrollIndicator={false}
-          />
-        ) : (
+          </View>
           <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
-            <Text className="text-secondary font-lexend text-sm">Project</Text>
-            <Text className="font-lexend text-black">No projects available. Create a project first.</Text>
+            <Text className="text-secondary font-lexend text-sm">Task Name</Text>
+            <TextInput
+              cursorColor="#7c3aed"
+              value={taskName}
+              onChangeText={setTaskName}
+              className="font-lexend text-black"
+            />
           </View>
+          <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
+            <Text className="text-secondary font-lexend text-sm">Description</Text>
+            <TextInput
+              cursorColor="#7c3aed"
+              value={description}
+              onChangeText={setDescription}
+              className="font-lexend text-black text-sm"
+              multiline={true}
+              numberOfLines={4}
+            />
+          </View>
+          <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+            <CalendarIcon width={24} height={24} color="#5F33E1" />
+            <View className="flex flex-col flex-1">
+              <Text className="text-secondary font-lexend text-sm">Date</Text>
+              <Text className="text-black font-lexend">{formatDisplayDate(taskDateKey)}</Text>
+            </View>
+          </View>
+          <Pressable onPress={() => setStartTimePickerShow(true)}>
+            <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+              <ClockIcon width={24} height={24} color="#5F33E1" />
+              <View className="flex flex-col flex-1">
+                <Text className="text-secondary font-lexend text-sm">Start Time</Text>
+                <Text className="text-black font-lexend">{formatTime(startTime)}</Text>
+              </View>
+              <View>
+                <DownIcon width={24} height={24} color="black" />
+              </View>
+            </View>
+          </Pressable>
+          <Pressable onPress={() => setEndTimePickerShow(true)}>
+            <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+              <ClockIcon width={24} height={24} color="#5F33E1" />
+              <View className="flex flex-col flex-1">
+                <Text className="text-secondary font-lexend text-sm">End Time</Text>
+                <Text className="text-black font-lexend">{formatTime(endTime)}</Text>
+              </View>
+              <View>
+                <DownIcon width={24} height={24} color="black" />
+              </View>
+            </View>
+          </Pressable>
+          <RoundedButton
+            text={isSaving ? "Saving..." : "Add Task"}
+            onPress={handleAddTask}
+            disabled={isSaving || projects.length === 0}
+          />
+        </ScrollView>
+        {startTimePickerShow && (
+          <DateTimePicker
+            testID="startTimePicker"
+            value={startTime}
+            mode="time"
+            onValueChange={(_event, selectedTime) => {
+              if (selectedTime) {
+                setStartTime(selectedTime);
+              }
+              setStartTimePickerShow(false);
+            }}
+            onDismiss={() => setStartTimePickerShow(false)}
+          />
         )}
-      </View>
-      <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
-        <Text className="text-secondary font-lexend text-sm">Task Name</Text>
-        <TextInput
-          cursorColor="#7c3aed"
-          value={taskName}
-          onChangeText={setTaskName}
-          className="font-lexend text-black"
-        />
-      </View>
-      <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
-        <Text className="text-secondary font-lexend text-sm">Description</Text>
-        <TextInput
-          cursorColor="#7c3aed"
-          value={description}
-          onChangeText={setDescription}
-          className="font-lexend text-black text-sm"
-          multiline={true}
-          numberOfLines={4}
-        />
-      </View>
-      <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-        <CalendarIcon width={24} height={24} color="#5F33E1" />
-        <View className="flex flex-col flex-1">
-          <Text className="text-secondary font-lexend text-sm">Date</Text>
-          <Text className="text-black font-lexend">{formatDisplayDate(taskDateKey)}</Text>
-        </View>
-      </View>
-      <Pressable onPress={() => setStartTimePickerShow(true)}>
-        <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-          <ClockIcon width={24} height={24} color="#5F33E1" />
-          <View className="flex flex-col flex-1">
-            <Text className="text-secondary font-lexend text-sm">Start Time</Text>
-            <Text className="text-black font-lexend">{formatTime(startTime)}</Text>
-          </View>
-          <View>
-            <DownIcon width={24} height={24} color="black" />
-          </View>
-        </View>
-      </Pressable>
-      <Pressable onPress={() => setEndTimePickerShow(true)}>
-        <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-          <ClockIcon width={24} height={24} color="#5F33E1" />
-          <View className="flex flex-col flex-1">
-            <Text className="text-secondary font-lexend text-sm">End Time</Text>
-            <Text className="text-black font-lexend">{formatTime(endTime)}</Text>
-          </View>
-          <View>
-            <DownIcon width={24} height={24} color="black" />
-          </View>
-        </View>
-      </Pressable>
-      <RoundedButton
-        text={isSaving ? "Saving..." : "Add Task"}
-        onPress={handleAddTask}
-        disabled={isSaving || projects.length === 0}
-      />
-      {startTimePickerShow && (
-        <DateTimePicker
-          testID="startTimePicker"
-          value={startTime}
-          mode="time"
-          onValueChange={(_event, selectedTime) => {
-            if (selectedTime) {
-              setStartTime(selectedTime);
-            }
-            setStartTimePickerShow(false);
-          }}
-          onDismiss={() => setStartTimePickerShow(false)}
-        />
-      )}
-      {endTimePickerShow && (
-        <DateTimePicker
-          testID="endTimePicker"
-          value={endTime}
-          mode="time"
-          onValueChange={(_event, selectedTime) => {
-            if (selectedTime) {
-              setEndTime(selectedTime);
-            }
-            setEndTimePickerShow(false);
-          }}
-          onDismiss={() => setEndTimePickerShow(false)}
-        />
-      )}
+        {endTimePickerShow && (
+          <DateTimePicker
+            testID="endTimePicker"
+            value={endTime}
+            mode="time"
+            onValueChange={(_event, selectedTime) => {
+              if (selectedTime) {
+                setEndTime(selectedTime);
+              }
+              setEndTimePickerShow(false);
+            }}
+            onDismiss={() => setEndTimePickerShow(false)}
+          />
+        )}
       </View>
     </ScreenBackground>
   );

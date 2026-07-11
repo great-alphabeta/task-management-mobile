@@ -110,63 +110,63 @@ export default function TodayTask() {
   return (
     <ScreenBackground>
       <View className="flex flex-1 flex-col gap-lg">
-      <Header title="Today's Task" />
-      <View className="w-full flex flex-1 flex-col gap-md">
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="grow-0"
-          contentContainerClassName="flex flex-row gap-sm"
-        >
-          {calendarDates.map((date) => (
-            <CalendarItem
-              key={formatDateKey(date)}
-              date={date}
-              selected={isSameDay(date, selectedDate)}
-              onPress={() => handleSelectDate(date)}
-            />
-          ))}
-        </ScrollView>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="grow-0"
-          contentContainerClassName="flex flex-row gap-sm items-center"
-        >
-          {(["All", "To do", "In Progress", "Done"] as TaskFilter[]).map((text) => (
-            <RoundedButton
-              key={text}
-              text={text}
-              isFullWidth={false}
-              size="sm"
-              className="px-xl py-sm"
-              primary={text === activeFilter}
-              onPress={() => setActiveFilter(text)}
-            />
-          ))}
-        </ScrollView>
-        <ScrollView className="flex-1" contentContainerClassName="flex flex-col gap-md pb-[100px]" showsVerticalScrollIndicator={false}>
-          {filteredTasks.length > 0 ? (
-            filteredTasks.map((task) => (
-              <TaskItem
-                key={task.task_id}
-                project_name={projectsById[task.project_id]?.project_name ?? "Unknown Project"}
-                task_name={task.task_name}
-                status={toTaskItemStatus(task.status)}
-                time={formatTaskTime(task.start_time)}
-                onPress={() =>
-                  router.push({
-                    pathname: "/(base)/TaskDetail",
-                    params: { taskId: String(task.task_id) },
-                  })
-                }
+        <Header title="Today's Task" />
+        <View className="w-full flex flex-1 flex-col gap-md min-h-0">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            className="grow-0"
+            contentContainerClassName="flex flex-row gap-sm"
+          >
+            {calendarDates.map((date) => (
+              <CalendarItem
+                key={formatDateKey(date)}
+                date={date}
+                selected={isSameDay(date, selectedDate)}
+                onPress={() => handleSelectDate(date)}
               />
-            ))
-          ) : (
-            <Text className="font-lexend text-secondary text-sm">{emptyMessage}</Text>
-          )}
-        </ScrollView>
-      </View>
+            ))}
+          </ScrollView>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            className="grow-0"
+            contentContainerClassName="flex flex-row gap-sm items-center"
+          >
+            {(["All", "To do", "In Progress", "Done"] as TaskFilter[]).map((text) => (
+              <RoundedButton
+                key={text}
+                text={text}
+                isFullWidth={false}
+                size="sm"
+                className="px-xl py-sm"
+                primary={text === activeFilter}
+                onPress={() => setActiveFilter(text)}
+              />
+            ))}
+          </ScrollView>
+          <ScrollView className="flex-1" contentContainerClassName="flex flex-col gap-md pb-[100px]" showsVerticalScrollIndicator={false}>
+            {filteredTasks.length > 0 ? (
+              filteredTasks.map((task) => (
+                <TaskItem
+                  key={task.task_id}
+                  project_name={projectsById[task.project_id]?.project_name ?? "Unknown Project"}
+                  task_name={task.task_name}
+                  status={toTaskItemStatus(task.status)}
+                  time={formatTaskTime(task.start_time)}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/(base)/TaskDetail",
+                      params: { taskId: String(task.task_id) },
+                    })
+                  }
+                />
+              ))
+            ) : (
+              <Text className="font-lexend text-secondary text-sm">{emptyMessage}</Text>
+            )}
+          </ScrollView>
+        </View>
       </View>
     </ScreenBackground>
   );

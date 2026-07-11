@@ -128,86 +128,96 @@ export default function Home() {
   return (
     <ScreenBackground>
       <View className="flex flex-1 gap-xl">
-      <View className="flex flex-row gap-lg items-center justify-center">
-        <Image source={require("@/assets/images/avatar.png")} className="w-[48px] h-[48px] rounded-full" />
-        <View className="flex-1">
-          <Text className="font-lexend">Hello!</Text>
-          <Text className="text-lg font-lexend-semibold ">Livia Vaccaro</Text>
-        </View>
-        <View>
-          <NotificationIcon />
-          <View className="w-[8px] h-[8px] rounded-full bg-primary absolute top-0 right-[3px]" />
-        </View>
-      </View>
-      <View className="bg-primary rounded-xl p-xl flex flex-row gap-2xl items-center">
-        <View className="flex flex-col gap-xl w-1/2">
-          <Text className="font-lexend text-white">Your today’s task{"\n"}almost done!</Text>
-          <RoundedButton
-            text="View Task"
-            primary={false}
-            className="px-[20px] py-[10px]"
-            size="sm"
-            isFullWidth={false}
-            onPress={() => router.push("/(base)/TodayTask")}
-          />
-        </View>
-        <View
-          style={{ width: PROGRESS_SIZE, height: PROGRESS_SIZE }}
-        >
-          <Host matchContents>
-            <CircularProgressIndicator
-              progress={overallProgress}
-              color="#EEE9FF"
-              trackColor="#8764FF"
-              gapSize={0}
-              strokeWidth={8}
-              modifiers={[size(PROGRESS_SIZE, PROGRESS_SIZE), graphicsLayer({ scaleX: -1 })]}
-            />
-          </Host>
-          <View className="absolute inset-0 items-center justify-center" pointerEvents="none">
-            <Text className="font-lexend-semibold text-white text-sm">
-              {Math.round(overallProgress * 100)}%
-            </Text>
+        <View className="flex flex-row gap-lg items-center justify-center">
+          <Image source={require("@/assets/images/avatar.png")} className="w-[48px] h-[48px] rounded-full" />
+          <View className="flex-1">
+            <Text className="font-lexend">Hello!</Text>
+            <Text className="text-lg font-lexend-semibold ">Livia Vaccaro</Text>
+          </View>
+          <View>
+            <NotificationIcon />
+            <View className="w-[8px] h-[8px] rounded-full bg-primary absolute top-0 right-[3px]" />
           </View>
         </View>
-        <View className="bg-[#FFFFFF40] rounded-lg absolute top-lg right-lg w-[20px] h-[20px]">
-          <MaterialIcons name="more-horiz" size={20} color="#FFFFFF" />
-        </View>
-      </View>
-      <View className="flex flex-col gap-lg">
-        <View className="flex flex-row gap-lg items-center">
-          <Text className="font-lexend-semibold text-lg">In Progress</Text>
-          <Text className="font-lexend text-primary text-sm bg-[#EEE9FF] rounded-full w-[16px] h-[16px] items-center justify-center text-center">{inProgressProjects.length}</Text>
-        </View>
-        {inProgressProjects.length > 0 ? (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View className="flex flex-row gap-lg">
-              {inProgressProjects.map((project) => (
-                <ProjectItem
-                  key={project.project_id}
-                  name={project.project_name}
-                  type={project.group_id}
-                  completed={project.completed}
-                />
-              ))}
+        <View className="bg-primary rounded-xl p-xl flex flex-row gap-2xl items-center">
+          <View className="flex flex-col gap-xl w-1/2">
+            <Text className="font-lexend text-white">Your today's task{"\n"}almost done!</Text>
+            <RoundedButton
+              text="View Task"
+              primary={false}
+              className="px-[20px] py-[10px]"
+              size="sm"
+              isFullWidth={false}
+              onPress={() => router.push("/(base)/TodayTask")}
+            />
+          </View>
+          <View
+            style={{ width: PROGRESS_SIZE, height: PROGRESS_SIZE }}
+          >
+            <Host matchContents>
+              <CircularProgressIndicator
+                progress={overallProgress}
+                color="#EEE9FF"
+                trackColor="#8764FF"
+                gapSize={0}
+                strokeWidth={8}
+                modifiers={[size(PROGRESS_SIZE, PROGRESS_SIZE), graphicsLayer({ scaleX: -1 })]}
+              />
+            </Host>
+            <View className="absolute inset-0 items-center justify-center" pointerEvents="none">
+              <Text className="font-lexend-semibold text-white text-sm">
+                {Math.round(overallProgress * 100)}%
+              </Text>
             </View>
-          </ScrollView>
-        ) : (
-          <Text className="font-lexend text-secondary text-sm">No in-progress projects yet.</Text>
-        )}
-        <View className="flex flex-row gap-lg items-center">
+          </View>
+          <View className="bg-[#FFFFFF40] rounded-lg absolute top-lg right-lg w-[20px] h-[20px]">
+            <MaterialIcons name="more-horiz" size={20} color="#FFFFFF" />
+          </View>
+        </View>
+        <View className="flex flex-col gap-lg grow-0">
+          <View className="flex flex-row gap-lg items-center">
+            <Text className="font-lexend-semibold text-lg">In Progress</Text>
+            <Text className="font-lexend text-primary text-sm bg-[#EEE9FF] rounded-full w-[16px] h-[16px] items-center justify-center text-center">{inProgressProjects.length}</Text>
+          </View>
+          {inProgressProjects.length > 0 ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="grow-0">
+              <View className="flex flex-row gap-lg">
+                {inProgressProjects.map((project) => (
+                  <ProjectItem
+                    key={project.project_id}
+                    name={project.project_name}
+                    type={project.group_id}
+                    completed={project.completed}
+                  />
+                ))}
+              </View>
+            </ScrollView>
+          ) : (
+            <Text className="font-lexend text-secondary text-sm">No in-progress projects yet.</Text>
+          )}
+        </View>
+        <View className="flex flex-row gap-lg items-center grow-0">
           <Text className="font-lexend-semibold text-lg">Task Groups</Text>
           <Text className="font-lexend text-primary text-sm bg-[#EEE9FF] rounded-full w-[16px] h-[16px] items-center justify-center text-center">{taskGroups.length}</Text>
         </View>
-        {taskGroups.map((group) => (
-          <TaskGroupItem
-            key={group.groupId}
-            type={group.groupId}
-            task_count={group.task_count}
-            completed={group.completed}
-          />
-        ))}
-      </View>
+        <ScrollView
+          className="flex-1"
+          contentContainerClassName="flex flex-col gap-lg pb-[100px]"
+          showsVerticalScrollIndicator={false}
+        >
+          {taskGroups.length > 0 ? (
+            taskGroups.map((group) => (
+              <TaskGroupItem
+                key={group.groupId}
+                type={group.groupId}
+                task_count={group.task_count}
+                completed={group.completed}
+              />
+            ))
+          ) : (
+            <Text className="font-lexend text-secondary text-sm">No task groups yet.</Text>
+          )}
+        </ScrollView>
       </View>
     </ScreenBackground>
   );
