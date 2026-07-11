@@ -2,6 +2,7 @@ import NotificationIcon from "@/assets/svg/notification.svg";
 import ProjectItem from "@/components/ProjectItem";
 import RoundedButton from "@/components/RoundedButton";
 import TaskGroupItem from "@/components/TaskGroupItem";
+import TaskItem from "@/components/TaskItem";
 import { CircularProgressIndicator, Host } from '@expo/ui/jetpack-compose';
 import { graphicsLayer, size } from '@expo/ui/jetpack-compose/modifiers';
 import { MaterialIcons } from '@react-native-vector-icons/material-icons';
@@ -59,6 +60,7 @@ export default function Home() {
         </View>
         <ProjectItem name="Grocery shopping app design" type="office_project" />
         <TaskGroupItem type="office_project" task_count={6} completed={0.5} />
+        <TaskItem status="in_progress" project_name="Project 1" task_name="Task 1" />
       </View>
     </View>
   );
