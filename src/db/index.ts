@@ -1,0 +1,91 @@
+import * as SQLite from "expo-sqlite";
+
+const DATABASE_NAME = "task_management.db";
+
+let database: SQLite.SQLiteDatabase | null = null;
+
+const SCHEMA = `
+PRAGMA journal_mode = WAL;
+
+CREATE TABLE IF NOT EXISTS projects (
+  project_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  group_id TEXT NOT NULL,
+  project_name TEXT NOT NULL,
+  project_description TEXT NOT NULL DEFAULT '',
+  start_date TEXT NOT NULL,
+  end_date TEXT NOT NULL,
+  logo_uri TEXT
+);
+
+CREATE TABLE IF NOT EXISTS tasks (
+  task_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id INTEGER NOT NULL,
+  task_name TEXT NOT NULL,
+  task_description TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  status TEXT NOT NULL CHECK (status IN ('to-do', 'inprogress', 'done')),
+  FOREIGN KEY (project_id) REFERENCES projects (project_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS app_settings (
+  key TEXT PRIMARY KEY NOT NULL,
+  value TEXT NOT NULL
+);
+`;
+
+const INITIALIZED_KEY = "initialized";
+
+export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
+  if (database) {
+    return database;
+  }
+
+  database = await SQLite.openDatabaseAsync(DATABASE_NAME);
+  await database.execAsync(SCHEMA);
+
+  return database;
+}
+
+export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
+  if (!database) {
+    return initDatabase();
+  }
+
+  return database;
+}
+
+export async function isDatabaseInitialized(): Promise<boolean> {
+  try {
+    const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+    const table = await db.getFirstAsync<{ name: string }>(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'app_settings'",
+    );
+
+    if (!table) {
+      return false;
+    }
+
+    const row = await db.getFirstAsync<{ value: string }>(
+      "SELECT value FROM app_settings WHERE key = ?",
+      INITIALIZED_KEY,
+    );
+
+    return row?.value === "1";
+  } catch {
+    return false;
+  }
+}
+
+export async function markDatabaseInitialized(): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(
+    "INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)",
+    INITIALIZED_KEY,
+    "1",
+  );
+}
+
+export async function setupDatabase(): Promise<void> {
+  await initDatabase();
+  await markDatabaseInitialized();
+}

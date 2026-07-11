@@ -5,15 +5,26 @@ import DownIcon from "@/assets/svg/down.svg";
 import UserIcon from "@/assets/svg/user.svg";
 import Header from "@/components/Header";
 import RoundedButton from "@/components/RoundedButton";
+import { createProject } from "@/db/projects";
+import type { TaskGroupId } from "@/types/database";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from "react";
 import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
 import SelectDropdown from 'react-native-select-dropdown';
 
+type TaskGroupOption = {
+  id: TaskGroupId;
+  title: string;
+  icon: typeof BriefcaseIcon;
+  iconColor: string;
+  bgColor: string;
+};
+
 export default function AddProject() {
   const [image, setImage] = useState<string | null>(null);
-  const taskGroups = [
+  const [isSaving, setIsSaving] = useState(false);
+  const taskGroups: TaskGroupOption[] = [
     {
       id: 'office_project',
       title: 'Office Project',
@@ -44,9 +55,6 @@ export default function AddProject() {
   const [endDate, setEndDate] = useState(new Date());
   const [endDatePickerShow, setEndDatePickerShow] = useState(false);
 
-  const handleTaskGroupClick = (taskGroup: any) => {
-    setSelectedTaskGroup(taskGroup);
-  }
   const handleProjectNameChange = (text: string) => {
     setProjectName(text);
   }
@@ -74,13 +82,47 @@ export default function AddProject() {
     }
   };
 
+  const handleAddProject = async () => {
+    const trimmedName = projectName.trim();
+
+    if (!trimmedName) {
+      Alert.alert("Missing project name", "Please enter a project name.");
+      return;
+    }
+
+    if (endDate < startDate) {
+      Alert.alert("Invalid dates", "End date must be on or after the start date.");
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      await createProject({
+        group_id: selectedTaskGroup.id,
+        project_name: trimmedName,
+        project_description: description.trim(),
+        start_date: startDate.toISOString(),
+        end_date: endDate.toISOString(),
+        logo_uri: image,
+      });
+
+      // router.back();
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Save failed", "Could not save the project. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <View className="flex flex-1 gap-xl">
       <Header title="Add Project" />
       <View className="w-full">
         <SelectDropdown
           data={taskGroups}
-          onSelect={(selectedItem: any) => {
+          onSelect={(selectedItem: TaskGroupOption) => {
             setSelectedTaskGroup(selectedItem);
           }}
           renderButton={() => {
@@ -99,7 +141,7 @@ export default function AddProject() {
               </View>
             );
           }}
-          renderItem={(taskGroup: any, index: number, isSelected: boolean) => {
+          renderItem={(taskGroup: TaskGroupOption) => {
             return (
               <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
                 <View className={`rounded-lg w-[30px] h-[30px] items-center justify-center`} style={{ backgroundColor: taskGroup.bgColor }}>
@@ -164,7 +206,11 @@ export default function AddProject() {
           <Text className="text-primary font-lexend">Change Logo</Text>
         </Pressable>
       </View>
-      <RoundedButton text="Add Project" />
+      <RoundedButton
+        text={isSaving ? "Saving..." : "Add Project"}
+        onPress={handleAddProject}
+        disabled={isSaving}
+      />
       {startDatePickerShow && (
         <DateTimePicker
           testID="dateTimePicker"

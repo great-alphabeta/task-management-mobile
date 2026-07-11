@@ -13,15 +13,15 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (!fontsLoaded) return;
-    SplashScreen.hideAsync();
-  }, [fontsLoaded]);
+    SplashScreen.preventAutoHideAsync();
+  }, []);
 
   if (!fontsLoaded) return null;
 
   return (
     <SafeAreaView className="flex-1">
       <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
         <Stack.Screen name="(base)" />
         <Stack.Screen name="OnBoarding" />
       </Stack>

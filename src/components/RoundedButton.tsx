@@ -35,6 +35,8 @@ export default function RoundedButton({
   rightIcon = null,
   className = "",
   size = "md",
+  onPress,
+  disabled = false,
 }: {
   text: string;
   isFullWidth?: boolean;
@@ -42,12 +44,17 @@ export default function RoundedButton({
   rightIcon?: React.ReactNode | null;
   className?: string;
   size?: "sm" | "md" | "lg";
+  onPress?: () => void;
+  disabled?: boolean;
 }) {
   return (
     <Pressable
+      onPress={onPress}
+      disabled={disabled}
       style={{
         height: size === "sm" ? 38 : size === "md" ? 52 : 64,
         width: isFullWidth ? "100%" : undefined,
+        opacity: disabled ? 0.6 : 1,
       }}
     >
       <View
