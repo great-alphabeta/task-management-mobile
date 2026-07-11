@@ -13,18 +13,33 @@ export default function BaseLayout() {
       className="flex-1"
       resizeMode="cover"
     >
-      <View className="flex flex-1 px-xl">
+      <View className="flex flex-1">
         <Stack
           screenOptions={{
             headerShown: false,
             contentStyle: { backgroundColor: "transparent" },
           }}
         >
-          <Stack.Screen name="AddProject" />
-          <Stack.Screen name="AddTask" />
-          <Stack.Screen name="Home" />
-          <Stack.Screen name="TodayTask" />
-          <Stack.Screen name="TaskDetail" />
+          <Stack.Screen
+            name="AddProject"
+            options={{ contentStyle: { backgroundColor: "#FAFAFA" } }}
+          />
+          <Stack.Screen
+            name="AddTask"
+            options={{ contentStyle: { backgroundColor: "#FAFAFA" } }}
+          />
+          <Stack.Screen
+            name="Home"
+            options={{ contentStyle: { backgroundColor: "#FAFAFA" } }}
+          />
+          <Stack.Screen
+            name="TodayTask"
+            options={{ contentStyle: { backgroundColor: "#FAFAFA" } }}
+          />
+          <Stack.Screen
+            name="TaskDetail"
+            options={{ contentStyle: { backgroundColor: "#FAFAFA" } }}
+          />
         </Stack>
       </View>
       {showNavbar && (

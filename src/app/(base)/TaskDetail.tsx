@@ -4,6 +4,7 @@ import DownIcon from "@/assets/svg/down.svg";
 import UserIcon from "@/assets/svg/user.svg";
 import Header from "@/components/Header";
 import RoundedButton from "@/components/RoundedButton";
+import ScreenBackground from "@/components/ScreenBackground";
 import TaskStatusBadge, { getTaskStatusStyle } from "@/components/TaskStatusBadge";
 import { getAllProjects } from "@/db/projects";
 import { deleteTask, getTaskById, updateTask } from "@/db/tasks";
@@ -179,14 +180,17 @@ export default function TaskDetail() {
 
   if (isLoading) {
     return (
-      <View className="flex flex-1 gap-xl">
-        <Header title="Task Detail" />
-      </View>
+      <ScreenBackground>
+        <View className="flex flex-1 gap-xl">
+          <Header title="Task Detail" />
+        </View>
+      </ScreenBackground>
     );
   }
 
   return (
-    <View className="flex flex-1 gap-xl">
+    <ScreenBackground>
+      <View className="flex flex-1 gap-xl">
       <Header title="Task Detail" />
       <View className="w-full">
         {projects.length > 0 && selectedProject ? (
@@ -303,6 +307,7 @@ export default function TaskDetail() {
           {isDeleting ? "Deleting..." : "Delete Task"}
         </Text>
       </Pressable>
-    </View>
+      </View>
+    </ScreenBackground>
   );
 }

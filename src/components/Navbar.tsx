@@ -24,6 +24,14 @@ export default function Navbar() {
     router.push("/(base)/AddProject");
   };
 
+  const handleHomePress = () => {
+    router.replace("/(base)/Home");
+  };
+
+  const handleCalendarPress = () => {
+    router.replace("/(base)/TodayTask");
+  };
+
   return (
     <View className="relative w-full">
       <View className="flex flex-row w-full" style={{ height: NAVBAR_CURVE_HEIGHT }}>
@@ -32,9 +40,13 @@ export default function Navbar() {
           style={{ height: NAVBAR_CURVE_HEIGHT }}
         >
           <View className="flex-1"></View>
-          <HomeIcon width={24} height={24} color="#5F33E1" />
+          <Pressable onPress={handleHomePress}>
+            <HomeIcon width={24} height={24} color="#5F33E1" />
+          </Pressable>
           <View className="flex-1"></View>
-          <CalendarIcon width={24} height={24} color="#5F33E1" />
+          <Pressable onPress={handleCalendarPress}>
+            <CalendarIcon width={24} height={24} color="#5F33E1" />
+          </Pressable>
           <View className="flex-1"></View>
         </View>
         <ImageBackground

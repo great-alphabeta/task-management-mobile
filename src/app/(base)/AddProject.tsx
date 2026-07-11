@@ -5,6 +5,7 @@ import DownIcon from "@/assets/svg/down.svg";
 import UserIcon from "@/assets/svg/user.svg";
 import Header from "@/components/Header";
 import RoundedButton from "@/components/RoundedButton";
+import ScreenBackground from "@/components/ScreenBackground";
 import { createProject } from "@/db/projects";
 import type { TaskGroupId } from "@/types/database";
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -118,7 +119,8 @@ export default function AddProject() {
   };
 
   return (
-    <View className="flex flex-1 gap-xl">
+    <ScreenBackground>
+      <View className="flex flex-1 gap-xl">
       <Header title="Add Project" />
       <View className="w-full">
         <SelectDropdown
@@ -240,6 +242,7 @@ export default function AddProject() {
           onDismiss={() => setEndDatePickerShow(false)}
         />
       )}
-    </View>
+      </View>
+    </ScreenBackground>
   );
-} 
+}

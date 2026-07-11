@@ -1,6 +1,7 @@
 import CalendarItem from "@/components/CalendarItem";
 import Header from "@/components/Header";
 import RoundedButton from "@/components/RoundedButton";
+import ScreenBackground from "@/components/ScreenBackground";
 import TaskItem from "@/components/TaskItem";
 import { getAllProjects } from "@/db/projects";
 import { getTasksByDate } from "@/db/tasks";
@@ -107,7 +108,8 @@ export default function TodayTask() {
     : `No ${activeFilter.toLowerCase()} tasks for this day.`;
 
   return (
-    <View className="flex flex-1 flex-col gap-lg">
+    <ScreenBackground>
+      <View className="flex flex-1 flex-col gap-lg">
       <Header title="Today's Task" />
       <View className="w-full flex flex-1 flex-col gap-md">
         <View className="flex flex-row gap-sm justify-between">
@@ -155,6 +157,7 @@ export default function TodayTask() {
           )}
         </ScrollView>
       </View>
-    </View>
+      </View>
+    </ScreenBackground>
   );
 }

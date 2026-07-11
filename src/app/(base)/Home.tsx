@@ -1,6 +1,7 @@
 import NotificationIcon from "@/assets/svg/notification.svg";
 import ProjectItem from "@/components/ProjectItem";
 import RoundedButton from "@/components/RoundedButton";
+import ScreenBackground from "@/components/ScreenBackground";
 import TaskGroupItem from "@/components/TaskGroupItem";
 import { getAllProjects } from "@/db/projects";
 import { getAllTasks } from "@/db/tasks";
@@ -125,7 +126,8 @@ export default function Home() {
   );
 
   return (
-    <View className="flex flex-1 gap-xl">
+    <ScreenBackground>
+      <View className="flex flex-1 gap-xl">
       <View className="flex flex-row gap-lg items-center justify-center">
         <Image source={require("@/assets/images/avatar.png")} className="w-[48px] h-[48px] rounded-full" />
         <View className="flex-1">
@@ -173,9 +175,9 @@ export default function Home() {
         </View>
       </View>
       <View className="flex flex-col gap-lg">
-        <View className="flex flex-row items-end justify-between">
+        <View className="flex flex-row gap-lg items-center">
           <Text className="font-lexend-semibold text-lg">In Progress</Text>
-          <Text className="font-lexend text-secondary">{inProgressProjects.length}</Text>
+          <Text className="font-lexend text-primary text-sm bg-[#EEE9FF] rounded-full w-[16px] h-[16px] items-center justify-center text-center">{inProgressProjects.length}</Text>
         </View>
         {inProgressProjects.length > 0 ? (
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -193,6 +195,10 @@ export default function Home() {
         ) : (
           <Text className="font-lexend text-secondary text-sm">No in-progress projects yet.</Text>
         )}
+        <View className="flex flex-row gap-lg items-center">
+          <Text className="font-lexend-semibold text-lg">Task Groups</Text>
+          <Text className="font-lexend text-primary text-sm bg-[#EEE9FF] rounded-full w-[16px] h-[16px] items-center justify-center text-center">{taskGroups.length}</Text>
+        </View>
         {taskGroups.map((group) => (
           <TaskGroupItem
             key={group.groupId}
@@ -202,6 +208,7 @@ export default function Home() {
           />
         ))}
       </View>
-    </View>
+      </View>
+    </ScreenBackground>
   );
 }

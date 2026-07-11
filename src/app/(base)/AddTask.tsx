@@ -5,6 +5,7 @@ import DownIcon from "@/assets/svg/down.svg";
 import UserIcon from "@/assets/svg/user.svg";
 import Header from "@/components/Header";
 import RoundedButton from "@/components/RoundedButton";
+import ScreenBackground from "@/components/ScreenBackground";
 import { getAllProjects } from "@/db/projects";
 import { createTask } from "@/db/tasks";
 import { getSelectedTaskDateKey } from "@/store/selectedTaskDate";
@@ -136,7 +137,8 @@ export default function AddTask() {
   };
 
   return (
-    <View className="flex flex-1 gap-xl">
+    <ScreenBackground>
+      <View className="flex flex-1 gap-xl">
       <Header title="Add Task" />
       <View className="w-full">
         {projects.length > 0 && selectedProject ? (
@@ -280,6 +282,7 @@ export default function AddTask() {
           onDismiss={() => setEndTimePickerShow(false)}
         />
       )}
-    </View>
+      </View>
+    </ScreenBackground>
   );
 }
