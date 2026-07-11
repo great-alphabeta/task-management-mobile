@@ -16,6 +16,7 @@ export default function BaseLayout() {
             contentStyle: { backgroundColor: "transparent" },
           }}
         >
+          <Stack.Screen name="AddProject" />
           <Stack.Screen name="Home" />
         </Stack>
       </View>

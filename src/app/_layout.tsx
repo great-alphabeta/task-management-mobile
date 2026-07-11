@@ -21,7 +21,7 @@ export default function RootLayout() {
 
   return (
     <SafeAreaView className="flex-1">
-      <Stack screenOptions={{ headerShown: false }} initialRouteName="(base)">
+      <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(base)" />
         <Stack.Screen name="OnBoarding" />
       </Stack>
