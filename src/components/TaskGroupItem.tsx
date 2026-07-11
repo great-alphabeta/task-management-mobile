@@ -14,7 +14,7 @@ export default function TaskGroupItem({
 }) {
   const type_name = type === "office_project" ? "Office Project" : type === "personal_project" ? "Personal Project" : "Daily Study";
   return (
-    <View className="flex flex-row items-center justify-between bg-[#FFFFFF] rounded-lg p-lg gap-md">
+    <View className="flex flex-row items-center justify-between bg-[#FFFFFF] rounded-2xl p-lg gap-md shadow-md">
       <View className='w-[34px] h-[34px] bg-[#FFE4F2] rounded-md items-center justify-center'>
         <BriefcaseIcon color="#F478B8" width={20} height={20} />
       </View>

@@ -53,7 +53,7 @@ export default function Home() {
           <MaterialIcons name="more-horiz" size={20} color="#FFFFFF" />
         </View>
       </View>
-      <View>
+      <View className="flex flex-col gap-lg">
         <View>
           <Text>In Progress</Text>
           <Text>6</Text>
