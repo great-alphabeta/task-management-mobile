@@ -1,117 +1,130 @@
 import BookIcon from "@/assets/svg/book.svg";
 import BriefcaseIcon from "@/assets/svg/briefcase.svg";
-import CalendarIcon from "@/assets/svg/calendar.svg";
+import ClockIcon from "@/assets/svg/clock.svg";
 import DownIcon from "@/assets/svg/down.svg";
 import UserIcon from "@/assets/svg/user.svg";
 import Header from "@/components/Header";
 import RoundedButton from "@/components/RoundedButton";
-import { createProject } from "@/db/projects";
-import type { TaskGroupId } from "@/types/database";
-import DateTimePicker from '@react-native-community/datetimepicker';
-import * as ImagePicker from 'expo-image-picker';
-import { router } from "expo-router";
-import { useState } from "react";
+import { getAllProjects } from "@/db/projects";
+import { createTask } from "@/db/tasks";
+import type { Project, TaskGroupId } from "@/types/database";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
-import SelectDropdown from 'react-native-select-dropdown';
+import SelectDropdown from "react-native-select-dropdown";
 
-type TaskGroupOption = {
-  id: TaskGroupId;
-  title: string;
+type ProjectOption = Project & {
   icon: typeof BriefcaseIcon;
   iconColor: string;
   bgColor: string;
 };
 
+function getTaskGroupStyle(groupId: TaskGroupId) {
+  switch (groupId) {
+    case "office_project":
+      return {
+        icon: BriefcaseIcon,
+        iconColor: "#F478B8",
+        bgColor: "#FFE4F2",
+      };
+    case "personal_project":
+      return {
+        icon: UserIcon,
+        iconColor: "#9260F4",
+        bgColor: "#E8E1FF",
+      };
+    case "daily_study":
+      return {
+        icon: BookIcon,
+        iconColor: "#FF9142",
+        bgColor: "#FFE6D4",
+      };
+  }
+}
+
+function createDefaultTime(hours: number, minutes = 0) {
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  return date;
+}
+
+function formatTime(date: Date) {
+  return date.toLocaleString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 export default function AddTask() {
-  const [image, setImage] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const taskGroups: TaskGroupOption[] = [
-    {
-      id: 'office_project',
-      title: 'Office Project',
-      icon: BriefcaseIcon,
-      iconColor: "#F478B8",
-      bgColor: "#FFE4F2",
-    },
-    {
-      id: 'personal_project',
-      title: 'Personal Project',
-      icon: UserIcon,
-      iconColor: "#9260F4",
-      bgColor: "#E8E1FF",
-    },
-    {
-      id: 'daily_study',
-      title: 'Daily Study',
-      icon: BookIcon,
-      iconColor: "#FF9142",
-      bgColor: "#FFE6D4",
-    },
-  ]
-  const [selectedTaskGroup, setSelectedTaskGroup] = useState(taskGroups[0]);
-  const [projectName, setProjectName] = useState("");
+  const [projects, setProjects] = useState<ProjectOption[]>([]);
+  const [selectedProject, setSelectedProject] = useState<ProjectOption | null>(null);
+  const [taskName, setTaskName] = useState("");
   const [description, setDescription] = useState("");
-  const [startDate, setStartDate] = useState(new Date());
-  const [startDatePickerShow, setStartDatePickerShow] = useState(false);
-  const [endDate, setEndDate] = useState(new Date());
-  const [endDatePickerShow, setEndDatePickerShow] = useState(false);
+  const [startTime, setStartTime] = useState(createDefaultTime(9));
+  const [startTimePickerShow, setStartTimePickerShow] = useState(false);
+  const [endTime, setEndTime] = useState(createDefaultTime(10));
+  const [endTimePickerShow, setEndTimePickerShow] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleProjectNameChange = (text: string) => {
-    setProjectName(text);
-  }
-  const handleDescriptionChange = (text: string) => {
-    setDescription(text);
-  }
-  const pickImage = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  const loadProjects = useCallback(async () => {
+    const loadedProjects = await getAllProjects();
+    const projectOptions = loadedProjects.map((project) => ({
+      ...project,
+      ...getTaskGroupStyle(project.group_id),
+    }));
 
-    if (!permissionResult.granted) {
-      Alert.alert('Permission required', 'Permission to access the media library is required.');
+    setProjects(projectOptions);
+    setSelectedProject((current) => {
+      if (!current) {
+        return projectOptions[0] ?? null;
+      }
+
+      return projectOptions.find((project) => project.project_id === current.project_id) ?? projectOptions[0] ?? null;
+    });
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadProjects();
+    }, [loadProjects]),
+  );
+
+  const handleAddTask = async () => {
+    if (!selectedProject) {
+      Alert.alert("No project found", "Please create a project before adding a task.");
       return;
     }
 
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: false,
-      quality: 1,
-    });
-
-    console.log(result);
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
-  };
-
-  const handleAddProject = async () => {
-    const trimmedName = projectName.trim();
+    const trimmedName = taskName.trim();
 
     if (!trimmedName) {
-      Alert.alert("Missing project name", "Please enter a project name.");
+      Alert.alert("Missing task name", "Please enter a task name.");
       return;
     }
 
-    if (endDate < startDate) {
-      Alert.alert("Invalid dates", "End date must be on or after the start date.");
+    if (endTime <= startTime) {
+      Alert.alert("Invalid times", "End time must be after the start time.");
       return;
     }
 
     setIsSaving(true);
 
     try {
-      await createProject({
-        group_id: selectedTaskGroup.id,
-        project_name: trimmedName,
-        project_description: description.trim(),
-        start_date: startDate.toISOString(),
-        end_date: endDate.toISOString(),
-        logo_uri: image ?? "",
+      await createTask({
+        project_id: selectedProject.project_id,
+        task_name: trimmedName,
+        task_description: description.trim(),
+        start_time: startTime.toISOString(),
+        end_time: endTime.toISOString(),
+        status: "to-do",
       });
 
       router.back();
     } catch (error) {
       console.error(error);
-      Alert.alert("Save failed", "Could not save the project. Please try again.");
+      Alert.alert("Save failed", "Could not save the task. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -119,48 +132,71 @@ export default function AddTask() {
 
   return (
     <View className="flex flex-1 gap-xl">
-      <Header title="Add Project" />
+      <Header title="Add Task" />
       <View className="w-full">
-        <SelectDropdown
-          data={taskGroups}
-          onSelect={(selectedItem: TaskGroupOption) => {
-            setSelectedTaskGroup(selectedItem);
-          }}
-          renderButton={() => {
-            return (
+        {projects.length > 0 && selectedProject ? (
+          <SelectDropdown
+            data={projects}
+            onSelect={(selectedItem: ProjectOption) => {
+              setSelectedProject(selectedItem);
+            }}
+            renderButton={() => (
               <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-                <View className={`rounded-lg w-[30px] h-[30px] items-center justify-center`} style={{ backgroundColor: selectedTaskGroup.bgColor }}>
-                  <selectedTaskGroup.icon width={24} height={24} color={selectedTaskGroup.iconColor} />
+                <View
+                  className="rounded-lg w-[30px] h-[30px] items-center justify-center"
+                  style={{ backgroundColor: selectedProject.bgColor }}
+                >
+                  {selectedProject.logo_uri ? (
+                    <Image
+                      source={{ uri: selectedProject.logo_uri }}
+                      className="w-[30px] h-[30px] rounded-lg"
+                    />
+                  ) : (
+                    <selectedProject.icon width={24} height={24} color={selectedProject.iconColor} />
+                  )}
                 </View>
                 <View className="flex flex-col flex-1">
-                  <Text className="text-secondary font-lexend text-sm">Task Group</Text>
-                  <Text className="text-black font-lexend-semibold">{selectedTaskGroup.title}</Text>
+                  <Text className="text-secondary font-lexend text-sm">Project</Text>
+                  <Text className="text-black font-lexend-semibold">{selectedProject.project_name}</Text>
                 </View>
                 <View>
                   <DownIcon width={24} height={24} color="black" />
                 </View>
               </View>
-            );
-          }}
-          renderItem={(taskGroup: TaskGroupOption) => {
-            return (
+            )}
+            renderItem={(project: ProjectOption) => (
               <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-                <View className={`rounded-lg w-[30px] h-[30px] items-center justify-center`} style={{ backgroundColor: taskGroup.bgColor }}>
-                  <taskGroup.icon width={24} height={24} color={taskGroup.iconColor} />
+                <View
+                  className="rounded-lg w-[30px] h-[30px] items-center justify-center"
+                  style={{ backgroundColor: project.bgColor }}
+                >
+                  {project.logo_uri ? (
+                    <Image
+                      source={{ uri: project.logo_uri }}
+                      className="w-[30px] h-[30px] rounded-lg"
+                    />
+                  ) : (
+                    <project.icon width={24} height={24} color={project.iconColor} />
+                  )}
                 </View>
-                <Text className="text-black font-lexend-semibold w-full">{taskGroup.title}</Text>
+                <Text className="text-black font-lexend-semibold w-full">{project.project_name}</Text>
               </View>
-            );
-          }}
-          showsVerticalScrollIndicator={false}
-        />
+            )}
+            showsVerticalScrollIndicator={false}
+          />
+        ) : (
+          <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
+            <Text className="text-secondary font-lexend text-sm">Project</Text>
+            <Text className="font-lexend text-black">No projects available. Create a project first.</Text>
+          </View>
+        )}
       </View>
       <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
-        <Text className="text-secondary font-lexend text-sm">Project Name</Text>
+        <Text className="text-secondary font-lexend text-sm">Task Name</Text>
         <TextInput
           cursorColor="#7c3aed"
-          value={projectName}
-          onChangeText={handleProjectNameChange}
+          value={taskName}
+          onChangeText={setTaskName}
           className="font-lexend text-black"
         />
       </View>
@@ -169,77 +205,69 @@ export default function AddTask() {
         <TextInput
           cursorColor="#7c3aed"
           value={description}
-          onChangeText={handleDescriptionChange}
+          onChangeText={setDescription}
           className="font-lexend text-black text-sm"
           multiline={true}
           numberOfLines={4}
         />
       </View>
-      <Pressable onPress={() => setStartDatePickerShow(true)}>
+      <Pressable onPress={() => setStartTimePickerShow(true)}>
         <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-          <CalendarIcon width={24} height={24} color="#5F33E1" />
+          <ClockIcon width={24} height={24} color="#5F33E1" />
           <View className="flex flex-col flex-1">
-            <Text className="text-secondary font-lexend text-sm">Start Date</Text>
-            <Text className="text-black font-lexend">{String(startDate.getDate()).padStart(2, "0")} {startDate.toLocaleString('en-US', { month: 'short' })}, {startDate.getFullYear()}</Text>
+            <Text className="text-secondary font-lexend text-sm">Start Time</Text>
+            <Text className="text-black font-lexend">{formatTime(startTime)}</Text>
           </View>
           <View>
             <DownIcon width={24} height={24} color="black" />
           </View>
         </View>
       </Pressable>
-      <Pressable onPress={() => setEndDatePickerShow(true)}>
+      <Pressable onPress={() => setEndTimePickerShow(true)}>
         <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-          <CalendarIcon width={24} height={24} color="#5F33E1" />
+          <ClockIcon width={24} height={24} color="#5F33E1" />
           <View className="flex flex-col flex-1">
-            <Text className="text-secondary font-lexend text-sm">End Date</Text>
-            <Text className="text-black font-lexend">{String(endDate.getDate()).padStart(2, "0")} {endDate.toLocaleString('en-US', { month: 'short' })}, {endDate.getFullYear()}</Text>
+            <Text className="text-secondary font-lexend text-sm">End Time</Text>
+            <Text className="text-black font-lexend">{formatTime(endTime)}</Text>
           </View>
           <View>
             <DownIcon width={24} height={24} color="black" />
           </View>
         </View>
       </Pressable>
-      <View className="flex flex-row gap-sm items-center justify-between p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
-        <View className="flex flex-row gap-sm items-center">
-          {image && <Image source={{ uri: image }} className="w-[44px] h-[44px] rounded-full" />}
-        </View>
-        <Pressable onPress={() => pickImage()} className="bg-[#EDE8FF] rounded-lg p-sm">
-          <Text className="text-primary font-lexend">Change Logo</Text>
-        </Pressable>
-      </View>
       <RoundedButton
-        text={isSaving ? "Saving..." : "Add Project"}
-        onPress={handleAddProject}
-        disabled={isSaving}
+        text={isSaving ? "Saving..." : "Add Task"}
+        onPress={handleAddTask}
+        disabled={isSaving || projects.length === 0}
       />
-      {startDatePickerShow && (
+      {startTimePickerShow && (
         <DateTimePicker
-          testID="dateTimePicker"
-          value={startDate}
-          mode='date'
-          onValueChange={(_event, selectedDate) => {
-            if (selectedDate) {
-              setStartDate(selectedDate);
+          testID="startTimePicker"
+          value={startTime}
+          mode="time"
+          onValueChange={(_event, selectedTime) => {
+            if (selectedTime) {
+              setStartTime(selectedTime);
             }
-            setStartDatePickerShow(false);
+            setStartTimePickerShow(false);
           }}
-          onDismiss={() => setStartDatePickerShow(false)}
+          onDismiss={() => setStartTimePickerShow(false)}
         />
       )}
-      {endDatePickerShow && (
+      {endTimePickerShow && (
         <DateTimePicker
-          testID="dateTimePicker"
-          value={endDate}
-          mode='date'
-          onValueChange={(_event, selectedDate) => {
-            if (selectedDate) {
-              setEndDate(selectedDate);
+          testID="endTimePicker"
+          value={endTime}
+          mode="time"
+          onValueChange={(_event, selectedTime) => {
+            if (selectedTime) {
+              setEndTime(selectedTime);
             }
-            setEndDatePickerShow(false);
+            setEndTimePickerShow(false);
           }}
-          onDismiss={() => setEndDatePickerShow(false)}
+          onDismiss={() => setEndTimePickerShow(false)}
         />
       )}
     </View>
   );
-} 
+}

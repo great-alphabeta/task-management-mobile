@@ -4,16 +4,26 @@ import CalendarIcon from "@/assets/svg/calendar.svg";
 import DocumentIcon from "@/assets/svg/document.svg";
 import HomeIcon from "@/assets/svg/home.svg";
 import ProfileIcon from "@/assets/svg/profile.svg";
-import { router } from "expo-router";
+import { router, useSegments } from "expo-router";
 import { Image, ImageBackground, Pressable, View } from "react-native";
 
 const NAVBAR_CURVE_HEIGHT = 50;
 const navbarCurveSource = Image.resolveAssetSource(NavBarCurve);
 const navbarCurveAspectRatio = navbarCurveSource.width / navbarCurveSource.height;
 
-export default function Navbar({
-}: {
-  }) {
+export default function Navbar() {
+  const segments = useSegments();
+  const currentScreen = segments.at(-1);
+
+  const handlePlusPress = () => {
+    if (currentScreen === "TodayTask") {
+      router.push("/(base)/AddTask");
+      return;
+    }
+
+    router.push("/(base)/AddProject");
+  };
+
   return (
     <View className="relative w-full">
       <View className="flex flex-row w-full" style={{ height: NAVBAR_CURVE_HEIGHT }}>
@@ -47,7 +57,7 @@ export default function Navbar({
         </View>
       </View>
       <Pressable
-        onPress={() => router.push("/(base)/AddProject")}
+        onPress={handlePlusPress}
         className="rounded-full bg-primary w-[44px] h-[44px] items-center justify-center absolute -top-1/2 left-1/2 -translate-x-1/2 shadow-lg shadow-primary"
       >
         <PlusIcon width={32} height={32} color="#FFFFFF" />

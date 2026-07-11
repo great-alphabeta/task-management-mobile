@@ -5,12 +5,14 @@ export async function createTask(task: NewTask): Promise<Task> {
   const db = await getDatabase();
 
   const result = await db.runAsync(
-    `INSERT INTO tasks (project_id, task_name, task_description, created_at, status)
-     VALUES (?, ?, ?, ?, ?)`,
+    `INSERT INTO tasks (project_id, task_name, task_description, created_at, start_time, end_time, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
     task.project_id,
     task.task_name,
     task.task_description,
     task.created_at ?? new Date().toISOString(),
+    task.start_time,
+    task.end_time,
     task.status,
   );
 
@@ -68,17 +70,21 @@ export async function updateTask(
     task_name: updates.task_name ?? existing.task_name,
     task_description: updates.task_description ?? existing.task_description,
     created_at: updates.created_at ?? existing.created_at,
+    start_time: updates.start_time ?? existing.start_time,
+    end_time: updates.end_time ?? existing.end_time,
     status: updates.status ?? existing.status,
   };
 
   await db.runAsync(
     `UPDATE tasks
-     SET project_id = ?, task_name = ?, task_description = ?, created_at = ?, status = ?
+     SET project_id = ?, task_name = ?, task_description = ?, created_at = ?, start_time = ?, end_time = ?, status = ?
      WHERE task_id = ?`,
     nextTask.project_id,
     nextTask.task_name,
     nextTask.task_description,
     nextTask.created_at,
+    nextTask.start_time,
+    nextTask.end_time,
     nextTask.status,
     taskId,
   );

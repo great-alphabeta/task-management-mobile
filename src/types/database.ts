@@ -18,6 +18,8 @@ export type Task = {
   task_name: string;
   task_description: string;
   created_at: string;
+  start_time: string;
+  end_time: string;
   status: TaskStatus;
 };
 

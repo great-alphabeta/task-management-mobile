@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS tasks (
   task_name TEXT NOT NULL,
   task_description TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  start_time TEXT NOT NULL DEFAULT '',
+  end_time TEXT NOT NULL DEFAULT '',
   status TEXT NOT NULL CHECK (status IN ('to-do', 'inprogress', 'done')),
   FOREIGN KEY (project_id) REFERENCES projects (project_id) ON DELETE CASCADE
 );
@@ -35,6 +37,19 @@ CREATE TABLE IF NOT EXISTS app_settings (
 `;
 
 const INITIALIZED_KEY = "initialized";
+
+async function migrateDatabase(db: SQLite.SQLiteDatabase): Promise<void> {
+  const columns = await db.getAllAsync<{ name: string }>("PRAGMA table_info(tasks)");
+  const columnNames = new Set(columns.map((column) => column.name));
+
+  if (!columnNames.has("start_time")) {
+    await db.execAsync('ALTER TABLE tasks ADD COLUMN start_time TEXT NOT NULL DEFAULT "";');
+  }
+
+  if (!columnNames.has("end_time")) {
+    await db.execAsync('ALTER TABLE tasks ADD COLUMN end_time TEXT NOT NULL DEFAULT "";');
+  }
+}
 
 async function openDatabase(): Promise<SQLite.SQLiteDatabase> {
   if (!database) {
@@ -49,6 +64,7 @@ export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
 
   if (!schemaReady) {
     await db.execAsync(SCHEMA);
+    await migrateDatabase(db);
     schemaReady = true;
   }
 
