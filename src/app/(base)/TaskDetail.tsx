@@ -208,13 +208,13 @@ export default function TaskDetail() {
                 renderButton={() => (
                   <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
                     <View
-                      className="rounded-lg w-[30px] h-[30px] items-center justify-center"
+                      className={`${selectedProject.logo_uri ? 'rounded-lg' : 'rounded-full'} w-[30px] h-[30px] items-center justify-center`}
                       style={{ backgroundColor: selectedProject.bgColor }}
                     >
                       {selectedProject.logo_uri ? (
                         <Image
                           source={{ uri: selectedProject.logo_uri }}
-                          className="w-[30px] h-[30px] rounded-lg"
+                          className="w-[30px] h-[30px] rounded-full"
                         />
                       ) : (
                         <selectedProject.icon width={24} height={24} color={selectedProject.iconColor} />
@@ -232,13 +232,13 @@ export default function TaskDetail() {
                 renderItem={(project: ProjectOption) => (
                   <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10">
                     <View
-                      className="rounded-lg w-[30px] h-[30px] items-center justify-center"
+                      className={`${project.logo_uri ? 'rounded-lg' : 'rounded-full'} w-[30px] h-[30px] items-center justify-center`}
                       style={{ backgroundColor: project.bgColor }}
                     >
                       {project.logo_uri ? (
                         <Image
                           source={{ uri: project.logo_uri }}
-                          className="w-[30px] h-[30px] rounded-lg"
+                          className="w-[30px] h-[30px] rounded-full"
                         />
                       ) : (
                         <project.icon width={24} height={24} color={project.iconColor} />

@@ -3,10 +3,13 @@ import BriefcaseIcon from "@/assets/svg/briefcase.svg";
 import CalendarIcon from "@/assets/svg/calendar.svg";
 import DownIcon from "@/assets/svg/down.svg";
 import UserIcon from "@/assets/svg/user.svg";
+import AiDescriptionField from "@/components/AiDescriptionField";
 import Header from "@/components/Header";
 import RoundedButton from "@/components/RoundedButton";
 import ScreenBackground from "@/components/ScreenBackground";
+import { isAiConfigured } from "@/config/ai";
 import { createProject } from "@/db/projects";
+import { suggestTaskGroup } from "@/services/ai";
 import type { TaskGroupId } from "@/types/database";
 import { imagePickerAssetToDataUri } from "@/utils/image";
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -57,6 +60,7 @@ export default function AddProject() {
   const [startDatePickerShow, setStartDatePickerShow] = useState(false);
   const [endDate, setEndDate] = useState(new Date());
   const [endDatePickerShow, setEndDatePickerShow] = useState(false);
+  const [isSuggestingGroup, setIsSuggestingGroup] = useState(false);
 
   const handleProjectNameChange = (text: string) => {
     setProjectName(text);
@@ -82,6 +86,35 @@ export default function AddProject() {
     if (!result.canceled) {
       const dataUri = await imagePickerAssetToDataUri(result.assets[0]);
       setImage(dataUri);
+    }
+  };
+
+  const handleSuggestGroup = async () => {
+    const trimmedName = projectName.trim();
+
+    if (!trimmedName) {
+      Alert.alert("Project name required", "Enter a project name before suggesting a group.");
+      return;
+    }
+
+    setIsSuggestingGroup(true);
+
+    try {
+      const suggestion = await suggestTaskGroup(trimmedName, description);
+      const matchedGroup = taskGroups.find((group) => group.id === suggestion.group_id);
+
+      if (!matchedGroup) {
+        Alert.alert("Suggestion failed", "AI returned an unknown task group.");
+        return;
+      }
+
+      setSelectedTaskGroup(matchedGroup);
+      Alert.alert("Group suggested", suggestion.reason);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not suggest a task group.";
+      Alert.alert("AI unavailable", message);
+    } finally {
+      setIsSuggestingGroup(false);
     }
   };
 
@@ -163,6 +196,18 @@ export default function AddProject() {
               }}
               showsVerticalScrollIndicator={false}
             />
+            {isAiConfigured() ? (
+              <Pressable
+                onPress={handleSuggestGroup}
+                disabled={isSuggestingGroup}
+                className="bg-[#EDE8FF] rounded-lg px-md py-sm self-start mt-sm"
+                style={{ opacity: isSuggestingGroup ? 0.6 : 1 }}
+              >
+                <Text className="text-primary font-lexend text-sm">
+                  {isSuggestingGroup ? "Suggesting group..." : "Suggest group with AI"}
+                </Text>
+              </Pressable>
+            ) : null}
           </View>
           <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
             <Text className="text-secondary font-lexend text-sm">Project Name</Text>
@@ -173,17 +218,13 @@ export default function AddProject() {
               className="font-lexend text-black"
             />
           </View>
-          <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
-            <Text className="text-secondary font-lexend text-sm">Description</Text>
-            <TextInput
-              cursorColor="#7c3aed"
-              value={description}
-              onChangeText={handleDescriptionChange}
-              className="font-lexend text-black text-sm"
-              multiline={true}
-              numberOfLines={4}
-            />
-          </View>
+          <AiDescriptionField
+            label="Description"
+            value={description}
+            onChangeText={handleDescriptionChange}
+            contextName={projectName}
+            contextType="project"
+          />
           <Pressable onPress={() => setStartDatePickerShow(true)}>
             <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
               <CalendarIcon width={24} height={24} color="#5F33E1" />

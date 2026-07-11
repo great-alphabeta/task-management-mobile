@@ -5,6 +5,8 @@ import ClockIcon from "@/assets/svg/clock.svg";
 import DownIcon from "@/assets/svg/down.svg";
 import UserIcon from "@/assets/svg/user.svg";
 import Header from "@/components/Header";
+import AiDescriptionField from "@/components/AiDescriptionField";
+import NaturalLanguageTaskInput from "@/components/NaturalLanguageTaskInput";
 import RoundedButton from "@/components/RoundedButton";
 import ScreenBackground from "@/components/ScreenBackground";
 import { getAllProjects } from "@/db/projects";
@@ -219,17 +221,14 @@ export default function AddTask() {
               className="font-lexend text-black"
             />
           </View>
-          <View className="flex flex-col gap-sm w-full bg-[#FFFFFF] p-xl rounded-lg shadow-md shadow-black/10">
-            <Text className="text-secondary font-lexend text-sm">Description</Text>
-            <TextInput
-              cursorColor="#7c3aed"
-              value={description}
-              onChangeText={setDescription}
-              className="font-lexend text-black text-sm"
-              multiline={true}
-              numberOfLines={4}
-            />
-          </View>
+          <AiDescriptionField
+            label="Description"
+            value={description}
+            onChangeText={setDescription}
+            contextName={taskName}
+            contextType="task"
+            projectName={selectedProject?.project_name}
+          />
           <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
             <CalendarIcon width={24} height={24} color="#5F33E1" />
             <View className="flex flex-col flex-1">
@@ -261,6 +260,11 @@ export default function AddTask() {
               </View>
             </View>
           </Pressable>
+          <NaturalLanguageTaskInput
+            projects={projects}
+            defaultDateKey={taskDateKey}
+            onTaskCreated={() => {}}
+          />
           <RoundedButton
             text={isSaving ? "Saving..." : "Add Task"}
             onPress={handleAddTask}

@@ -1,5 +1,6 @@
 import CalendarItem from "@/components/CalendarItem";
 import Header from "@/components/Header";
+import NaturalLanguageTaskInput from "@/components/NaturalLanguageTaskInput";
 import RoundedButton from "@/components/RoundedButton";
 import ScreenBackground from "@/components/ScreenBackground";
 import TaskItem from "@/components/TaskItem";
@@ -58,6 +59,7 @@ export default function TodayTask() {
   const [activeFilter, setActiveFilter] = useState<TaskFilter>("All");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [projectsById, setProjectsById] = useState<Record<number, Project>>({});
 
   const calendarDates = useMemo(
@@ -77,6 +79,7 @@ export default function TodayTask() {
     ]);
 
     setTasks(tasksForDate);
+    setProjects(projects);
     setProjectsById(
       Object.fromEntries(projects.map((project) => [project.project_id, project])),
     );
@@ -145,6 +148,11 @@ export default function TodayTask() {
               />
             ))}
           </ScrollView>
+          <NaturalLanguageTaskInput
+            projects={projects}
+            defaultDateKey={formatDateKey(selectedDate)}
+            onTaskCreated={loadTasks}
+          />
           <ScrollView className="flex-1" contentContainerClassName="flex flex-col gap-md pb-[100px]" showsVerticalScrollIndicator={false}>
             {filteredTasks.length > 0 ? (
               filteredTasks.map((task) => (

@@ -1,4 +1,5 @@
 import NotificationIcon from "@/assets/svg/notification.svg";
+import { DailyAiSummaryText, useDailyAiSummary } from "@/components/DailyAiSummary";
 import ProjectItem from "@/components/ProjectItem";
 import RoundedButton from "@/components/RoundedButton";
 import ScreenBackground from "@/components/ScreenBackground";
@@ -9,7 +10,7 @@ import type { Project, Task, TaskGroupId } from "@/types/database";
 import { CircularProgressIndicator, Host } from '@expo/ui/jetpack-compose';
 import { graphicsLayer, size } from '@expo/ui/jetpack-compose/modifiers';
 import { MaterialIcons } from '@react-native-vector-icons/material-icons';
-import { useFocusEffect, router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { Image, ScrollView, Text, View } from "react-native";
 
@@ -106,6 +107,7 @@ export default function Home() {
   const [inProgressProjects, setInProgressProjects] = useState<InProgressProject[]>([]);
   const [taskGroups, setTaskGroups] = useState<TaskGroupSummary[]>([]);
   const [overallProgress, setOverallProgress] = useState(0);
+  const { summary, isLoading: isSummaryLoading, loadSummary } = useDailyAiSummary();
 
   const loadHomeData = useCallback(async () => {
     const [projects, tasks] = await Promise.all([
@@ -122,7 +124,8 @@ export default function Home() {
   useFocusEffect(
     useCallback(() => {
       loadHomeData();
-    }, [loadHomeData]),
+      loadSummary();
+    }, [loadHomeData, loadSummary]),
   );
 
   return (
@@ -141,7 +144,7 @@ export default function Home() {
         </View>
         <View className="bg-primary rounded-xl p-xl flex flex-row gap-2xl items-center">
           <View className="flex flex-col gap-xl w-1/2">
-            <Text className="font-lexend text-white">Your today's task{"\n"}almost done!</Text>
+            <DailyAiSummaryText summary={summary} isLoading={isSummaryLoading} />
             <RoundedButton
               text="View Task"
               primary={false}
