@@ -13,7 +13,7 @@ export default function TaskItem({
 }) {
   const status_text = status === "todo" ? "To-do" : status === "in_progress" ? "In Progress" : "Done";
   return (
-    <View className="flex flex-col gap-sm bg-[#FFFFFF] rounded-2xl p-lg shadow-md">
+    <View className="flex flex-col gap-sm bg-[#FFFFFF] rounded-2xl p-lg shadow-md shadow-black/10">
       <View className="flex flex-row justify-between items-center">
         <Text className="font-lexend text-sm text-secondary">{project_name}</Text>
         <View className="w-[24px] h-[24px] bg-[#FFE4F2] rounded-md items-center justify-center">
