@@ -1,3 +1,4 @@
+import { isSameDay } from "@/utils/date";
 import { Pressable, Text, View } from "react-native";
 
 export default function CalendarItem({
@@ -13,10 +14,11 @@ export default function CalendarItem({
   const day = date.getDate();
   const dayOfWeek = date.toLocaleString("default", { weekday: "short" });
   const active = selected;
+  const isToday = isSameDay(date, new Date());
 
   return (
-    <Pressable onPress={onPress}>
-      <View className={`py-sm px-xl flex-col items-center rounded-lg justify-between gap-sm ${active ? "bg-primary" : "bg-white"} shadow-md shadow-black/10`}>
+    <Pressable onPress={onPress} className="self-start">
+      <View className={`py-sm px-lg flex-col items-center rounded-lg gap-xs ${active ? "bg-primary" : isToday ? "bg-[#EDE8FF]": "bg-white"} shadow-md shadow-black/10`}>
         <Text className={`font-lexend text-sm ${active ? "text-white" : "text-black"}`}>{month}</Text>
         <Text className={`font-lexend-semibold text-lg ${active ? "text-white" : "text-black"}`}>{day}</Text>
         <Text className={`font-lexend text-sm ${active ? "text-white" : "text-black"}`}>{dayOfWeek}</Text>

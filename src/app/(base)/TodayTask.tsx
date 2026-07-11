@@ -62,9 +62,9 @@ export default function TodayTask() {
 
   const calendarDates = useMemo(
     () =>
-      Array.from({ length: 5 }, (_, index) => {
+      Array.from({ length: 7 }, (_, index) => {
         const date = new Date();
-        date.setDate(date.getDate() + index - 2);
+        date.setDate(date.getDate() + index - 3);
         return date;
       }),
     [],
@@ -112,7 +112,12 @@ export default function TodayTask() {
       <View className="flex flex-1 flex-col gap-lg">
       <Header title="Today's Task" />
       <View className="w-full flex flex-1 flex-col gap-md">
-        <View className="flex flex-row gap-sm justify-between">
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="grow-0"
+          contentContainerClassName="flex flex-row gap-sm"
+        >
           {calendarDates.map((date) => (
             <CalendarItem
               key={formatDateKey(date)}
@@ -121,8 +126,13 @@ export default function TodayTask() {
               onPress={() => handleSelectDate(date)}
             />
           ))}
-        </View>
-        <View className="flex flex-row gap-sm">
+        </ScrollView>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="grow-0"
+          contentContainerClassName="flex flex-row gap-sm items-center"
+        >
           {(["All", "To do", "In Progress", "Done"] as TaskFilter[]).map((text) => (
             <RoundedButton
               key={text}
@@ -134,7 +144,7 @@ export default function TodayTask() {
               onPress={() => setActiveFilter(text)}
             />
           ))}
-        </View>
+        </ScrollView>
         <ScrollView className="flex-1" contentContainerClassName="flex flex-col gap-md pb-[100px]" showsVerticalScrollIndicator={false}>
           {filteredTasks.length > 0 ? (
             filteredTasks.map((task) => (
