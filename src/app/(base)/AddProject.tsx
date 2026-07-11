@@ -9,6 +9,7 @@ import { createProject } from "@/db/projects";
 import type { TaskGroupId } from "@/types/database";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
+import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
 import SelectDropdown from 'react-native-select-dropdown';
@@ -104,10 +105,10 @@ export default function AddProject() {
         project_description: description.trim(),
         start_date: startDate.toISOString(),
         end_date: endDate.toISOString(),
-        logo_uri: image,
+        logo_uri: image ?? "",
       });
 
-      // router.back();
+      router.back();
     } catch (error) {
       console.error(error);
       Alert.alert("Save failed", "Could not save the project. Please try again.");
@@ -216,8 +217,10 @@ export default function AddProject() {
           testID="dateTimePicker"
           value={startDate}
           mode='date'
-          onValueChange={(event, selectedDate) => {
-            setStartDate(selectedDate);
+          onValueChange={(_event, selectedDate) => {
+            if (selectedDate) {
+              setStartDate(selectedDate);
+            }
             setStartDatePickerShow(false);
           }}
           onDismiss={() => setStartDatePickerShow(false)}
@@ -228,8 +231,10 @@ export default function AddProject() {
           testID="dateTimePicker"
           value={endDate}
           mode='date'
-          onValueChange={(event, selectedDate) => {
-            setEndDate(selectedDate);
+          onValueChange={(_event, selectedDate) => {
+            if (selectedDate) {
+              setEndDate(selectedDate);
+            }
             setEndDatePickerShow(false);
           }}
           onDismiss={() => setEndDatePickerShow(false)}

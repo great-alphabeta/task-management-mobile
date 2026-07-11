@@ -12,7 +12,7 @@ export async function createProject(project: NewProject): Promise<Project> {
     project.project_description,
     project.start_date,
     project.end_date,
-    project.logo_uri,
+    project.logo_uri ?? "",
   );
 
   const created = await getProjectById(result.lastInsertRowId);
@@ -76,7 +76,7 @@ export async function updateProject(
     nextProject.project_description,
     nextProject.start_date,
     nextProject.end_date,
-    nextProject.logo_uri,
+    nextProject.logo_uri ?? "",
     projectId,
   );
 

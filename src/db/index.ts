@@ -3,6 +3,7 @@ import * as SQLite from "expo-sqlite";
 const DATABASE_NAME = "task_management.db";
 
 let database: SQLite.SQLiteDatabase | null = null;
+let schemaReady = false;
 
 const SCHEMA = `
 PRAGMA journal_mode = WAL;
@@ -35,28 +36,32 @@ CREATE TABLE IF NOT EXISTS app_settings (
 
 const INITIALIZED_KEY = "initialized";
 
-export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
-  if (database) {
-    return database;
+async function openDatabase(): Promise<SQLite.SQLiteDatabase> {
+  if (!database) {
+    database = await SQLite.openDatabaseAsync(DATABASE_NAME);
   }
-
-  database = await SQLite.openDatabaseAsync(DATABASE_NAME);
-  await database.execAsync(SCHEMA);
 
   return database;
 }
 
-export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
-  if (!database) {
-    return initDatabase();
+export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
+  const db = await openDatabase();
+
+  if (!schemaReady) {
+    await db.execAsync(SCHEMA);
+    schemaReady = true;
   }
 
-  return database;
+  return db;
+}
+
+export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
+  return initDatabase();
 }
 
 export async function isDatabaseInitialized(): Promise<boolean> {
   try {
-    const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+    const db = await openDatabase();
     const table = await db.getFirstAsync<{ name: string }>(
       "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'app_settings'",
     );

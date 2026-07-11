@@ -2,16 +2,128 @@ import NotificationIcon from "@/assets/svg/notification.svg";
 import ProjectItem from "@/components/ProjectItem";
 import RoundedButton from "@/components/RoundedButton";
 import TaskGroupItem from "@/components/TaskGroupItem";
-import TaskItem from "@/components/TaskItem";
+import { getAllProjects } from "@/db/projects";
+import { getAllTasks } from "@/db/tasks";
+import type { Project, Task, TaskGroupId } from "@/types/database";
 import { CircularProgressIndicator, Host } from '@expo/ui/jetpack-compose';
 import { graphicsLayer, size } from '@expo/ui/jetpack-compose/modifiers';
 import { MaterialIcons } from '@react-native-vector-icons/material-icons';
-import { Image, Text, View } from "react-native";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
+import { Image, ScrollView, Text, View } from "react-native";
 
 const PROGRESS_SIZE = 76;
-const PROGRESS = 0.85;
+
+const TASK_GROUP_ORDER: TaskGroupId[] = [
+  "office_project",
+  "personal_project",
+  "daily_study",
+];
+
+type InProgressProject = Project & {
+  completed: number;
+};
+
+type TaskGroupSummary = {
+  groupId: TaskGroupId;
+  task_count: number;
+  completed: number;
+};
+
+function getProjectCompletion(tasks: Task[]): number {
+  if (tasks.length === 0) {
+    return 0;
+  }
+
+  const doneCount = tasks.filter((task) => task.status === "done").length;
+  return doneCount / tasks.length;
+}
+
+function buildHomeData(projects: Project[], tasks: Task[]) {
+  const tasksByProjectId = new Map<number, Task[]>();
+
+  for (const task of tasks) {
+    const projectTasks = tasksByProjectId.get(task.project_id) ?? [];
+    projectTasks.push(task);
+    tasksByProjectId.set(task.project_id, projectTasks);
+  }
+
+  const inProgressProjects = projects
+    .filter((project) => {
+      const projectTasks = tasksByProjectId.get(project.project_id) ?? [];
+      return projectTasks.some(
+        (task) => task.status === "inprogress" || task.status === "to-do",
+      );
+    })
+    .map((project) => ({
+      ...project,
+      completed: getProjectCompletion(tasksByProjectId.get(project.project_id) ?? []),
+    }));
+
+  const projectsById = new Map(projects.map((project) => [project.project_id, project]));
+  const taskGroupMap = new Map<TaskGroupId, { total: number; done: number }>();
+
+  for (const task of tasks) {
+    const project = projectsById.get(task.project_id);
+    if (!project) {
+      continue;
+    }
+
+    const current = taskGroupMap.get(project.group_id) ?? { total: 0, done: 0 };
+    current.total += 1;
+    if (task.status === "done") {
+      current.done += 1;
+    }
+    taskGroupMap.set(project.group_id, current);
+  }
+
+  const taskGroups: TaskGroupSummary[] = TASK_GROUP_ORDER.flatMap((groupId) => {
+    const stats = taskGroupMap.get(groupId);
+    if (!stats || stats.total === 0) {
+      return [];
+    }
+
+    return [{
+      groupId,
+      task_count: stats.total,
+      completed: stats.done / stats.total,
+    }];
+  });
+
+  const overallProgress = tasks.length === 0
+    ? 0
+    : tasks.filter((task) => task.status === "done").length / tasks.length;
+
+  return {
+    inProgressProjects,
+    taskGroups,
+    overallProgress,
+  };
+}
 
 export default function Home() {
+  const [inProgressProjects, setInProgressProjects] = useState<InProgressProject[]>([]);
+  const [taskGroups, setTaskGroups] = useState<TaskGroupSummary[]>([]);
+  const [overallProgress, setOverallProgress] = useState(0);
+
+  const loadHomeData = useCallback(async () => {
+    const [projects, tasks] = await Promise.all([
+      getAllProjects(),
+      getAllTasks(),
+    ]);
+
+    const homeData = buildHomeData(projects, tasks);
+    setInProgressProjects(homeData.inProgressProjects);
+    setTaskGroups(homeData.taskGroups);
+    setOverallProgress(homeData.overallProgress);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadHomeData();
+    }, [loadHomeData]),
+  );
+
   return (
     <View className="flex flex-1 gap-xl">
       <View className="flex flex-row gap-lg items-center justify-center">
@@ -35,7 +147,7 @@ export default function Home() {
         >
           <Host matchContents>
             <CircularProgressIndicator
-              progress={PROGRESS}
+              progress={overallProgress}
               color="#EEE9FF"
               trackColor="#8764FF"
               gapSize={0}
@@ -45,7 +157,7 @@ export default function Home() {
           </Host>
           <View className="absolute inset-0 items-center justify-center" pointerEvents="none">
             <Text className="font-lexend-semibold text-white text-sm">
-              {Math.round(PROGRESS * 100)}%
+              {Math.round(overallProgress * 100)}%
             </Text>
           </View>
         </View>
@@ -54,14 +166,35 @@ export default function Home() {
         </View>
       </View>
       <View className="flex flex-col gap-lg">
-        <View>
-          <Text>In Progress</Text>
-          <Text>6</Text>
+        <View className="flex flex-row items-end justify-between">
+          <Text className="font-lexend-semibold text-lg">In Progress</Text>
+          <Text className="font-lexend text-secondary">{inProgressProjects.length}</Text>
         </View>
-        <ProjectItem name="Grocery shopping app design" type="office_project" />
-        <TaskGroupItem type="office_project" task_count={6} completed={0.5} />
-        <TaskItem status="in_progress" project_name="Project 1" task_name="Task 1" />
+        {inProgressProjects.length > 0 ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View className="flex flex-row gap-lg">
+              {inProgressProjects.map((project) => (
+                <ProjectItem
+                  key={project.project_id}
+                  name={project.project_name}
+                  type={project.group_id}
+                  completed={project.completed}
+                />
+              ))}
+            </View>
+          </ScrollView>
+        ) : (
+          <Text className="font-lexend text-secondary text-sm">No in-progress projects yet.</Text>
+        )}
+        {taskGroups.map((group) => (
+          <TaskGroupItem
+            key={group.groupId}
+            type={group.groupId}
+            task_count={group.task_count}
+            completed={group.completed}
+          />
+        ))}
       </View>
     </View>
   );
-} 
+}

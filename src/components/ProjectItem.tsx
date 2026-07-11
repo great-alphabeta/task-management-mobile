@@ -8,9 +8,11 @@ const PROGRESS_HEIGHT = 6;
 export default function ProjectItem({
   name = "Project 1",
   type = "office_project",
+  completed = 0,
 }: {
   name: string;
   type: "office_project" | "personal_project" | "daily_study";
+  completed?: number;
 }) {
   const type_name = type === "office_project" ? "Office Project" : type === "personal_project" ? "Personal Project" : "Daily Study";
   const backgroundColor = type === "office_project" ? "#E7F3FF" : type === "personal_project" ? "#FFE9E1" : "#E7F3FF";
@@ -26,7 +28,7 @@ export default function ProjectItem({
       <View className="w-full">
         <Host style={{ width: "100%", height: PROGRESS_HEIGHT }}>
           <LinearProgressIndicator
-            progress={0.5}
+            progress={completed}
             color="#0087FF"
             trackColor="white"
             gapSize={0}

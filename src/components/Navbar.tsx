@@ -4,7 +4,8 @@ import CalendarIcon from "@/assets/svg/calendar.svg";
 import DocumentIcon from "@/assets/svg/document.svg";
 import HomeIcon from "@/assets/svg/home.svg";
 import ProfileIcon from "@/assets/svg/profile.svg";
-import { Image, ImageBackground, View } from "react-native";
+import { router } from "expo-router";
+import { Image, ImageBackground, Pressable, View } from "react-native";
 
 const NAVBAR_CURVE_HEIGHT = 50;
 const navbarCurveSource = Image.resolveAssetSource(NavBarCurve);
@@ -45,9 +46,12 @@ export default function Navbar({
           <View className="flex-1"></View>
         </View>
       </View>
-      <View className="rounded-full bg-primary w-[44px] h-[44px] items-center justify-center absolute -top-1/2 left-1/2 -translate-x-1/2 shadow-lg shadow-primary">
+      <Pressable
+        onPress={() => router.push("/(base)/AddProject")}
+        className="rounded-full bg-primary w-[44px] h-[44px] items-center justify-center absolute -top-1/2 left-1/2 -translate-x-1/2 shadow-lg shadow-primary"
+      >
         <PlusIcon width={32} height={32} color="#FFFFFF" />
-      </View>
+      </Pressable>
     </View >
   );
 }

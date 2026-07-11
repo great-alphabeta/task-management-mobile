@@ -6,11 +6,11 @@ export async function createTask(task: NewTask): Promise<Task> {
 
   const result = await db.runAsync(
     `INSERT INTO tasks (project_id, task_name, task_description, created_at, status)
-     VALUES (?, ?, ?, COALESCE(?, datetime('now')), ?)`,
+     VALUES (?, ?, ?, ?, ?)`,
     task.project_id,
     task.task_name,
     task.task_description,
-    task.created_at ?? null,
+    task.created_at ?? new Date().toISOString(),
     task.status,
   );
 
