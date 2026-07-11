@@ -8,6 +8,7 @@ import RoundedButton from "@/components/RoundedButton";
 import ScreenBackground from "@/components/ScreenBackground";
 import { createProject } from "@/db/projects";
 import type { TaskGroupId } from "@/types/database";
+import { imagePickerAssetToDataUri } from "@/utils/image";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from "expo-router";
@@ -74,13 +75,13 @@ export default function AddProject() {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: false,
-      quality: 1,
+      quality: 0.8,
+      base64: true,
     });
 
-    console.log(result);
-
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const dataUri = await imagePickerAssetToDataUri(result.assets[0]);
+      setImage(dataUri);
     }
   };
 
@@ -152,7 +153,7 @@ export default function AddProject() {
               }}
               renderItem={(taskGroup: TaskGroupOption) => {
                 return (
-                  <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+                  <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10">
                     <View className={`rounded-lg w-[30px] h-[30px] items-center justify-center`} style={{ backgroundColor: taskGroup.bgColor }}>
                       <taskGroup.icon width={24} height={24} color={taskGroup.iconColor} />
                     </View>
@@ -209,7 +210,7 @@ export default function AddProject() {
           </Pressable>
           <View className="flex flex-row gap-sm items-center justify-between p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
             <View className="flex flex-row gap-sm items-center">
-              {image && <Image source={{ uri: image }} className="w-[44px] h-[44px] rounded-full" />}
+              {image && <Image source={{ uri: image }} className="w-[44px] h-[44px] rounded-full" resizeMode="cover" />}
             </View>
             <Pressable onPress={() => pickImage()} className="bg-[#EDE8FF] rounded-lg p-sm">
               <Text className="text-primary font-lexend">Change Logo</Text>

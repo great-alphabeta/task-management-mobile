@@ -230,7 +230,7 @@ export default function TaskDetail() {
                   </View>
                 )}
                 renderItem={(project: ProjectOption) => (
-                  <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+                  <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10">
                     <View
                       className="rounded-lg w-[30px] h-[30px] items-center justify-center"
                       style={{ backgroundColor: project.bgColor }}
@@ -296,7 +296,7 @@ export default function TaskDetail() {
                 </View>
               )}
               renderItem={(option: StatusOption) => (
-                <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+                <View className="flex flex-row gap-sm items-center p-xl bg-[#FFFFFF] shadow-md shadow-black/10">
                   <TaskStatusBadge status={option.value} />
                 </View>
               )}

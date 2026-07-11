@@ -1,20 +1,31 @@
 import LeftArrowIcon from "@/assets/svg/left.svg";
 import NotificationIcon from "@/assets/svg/notification.svg";
-import { router } from "expo-router";
+import { router, type Href } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 
 export default function Header({
   title = "",
   showBack = true,
+  fallbackHref = "/(base)/Home" as Href,
 }: {
   title: string;
   showBack?: boolean;
+  fallbackHref?: Href;
 }) {
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace(fallbackHref);
+  };
+
   return (
     <View className="flex flex-row p-lg w-full gap-lg items-center justify-center">
       <View>
         {showBack ? (
-          <Pressable onPress={() => router.back()}>
+          <Pressable onPress={handleBack}>
             <LeftArrowIcon />
           </Pressable>
         ) : (
