@@ -7,7 +7,7 @@ import { getTasksByDate } from "@/db/tasks";
 import { setSelectedTaskDate } from "@/store/selectedTaskDate";
 import type { Project, Task, TaskStatus } from "@/types/database";
 import { formatDateKey, isSameDay } from "@/utils/date";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 
@@ -142,6 +142,12 @@ export default function TodayTask() {
                 task_name={task.task_name}
                 status={toTaskItemStatus(task.status)}
                 time={formatTaskTime(task.start_time)}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(base)/TaskDetail",
+                    params: { taskId: String(task.task_id) },
+                  })
+                }
               />
             ))
           ) : (
