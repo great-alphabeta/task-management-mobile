@@ -1,4 +1,6 @@
+import BookIcon from "@/assets/svg/book.svg";
 import BriefcaseIcon from "@/assets/svg/briefcase.svg";
+import UserIcon from "@/assets/svg/user.svg";
 import { CircularProgressIndicator, Host } from "@expo/ui/jetpack-compose";
 import { graphicsLayer } from "@expo/ui/jetpack-compose/modifiers";
 import { Text, View } from "react-native";
@@ -13,10 +15,15 @@ export default function TaskGroupItem({
   completed: number;
 }) {
   const type_name = type === "office_project" ? "Office Project" : type === "personal_project" ? "Personal Project" : "Daily Study";
+  const trackColor = type === "office_project" ? "#FFE4F2" : type === "personal_project" ? "#EDE4FF" : "#FFE6D4";
+  const color = type === "office_project" ? "#F478B8" : type === "personal_project" ? "#9260F4" : "#FF9142";
+  const backgroundColor = type === "office_project" ? "#FFE4F2" : type === "personal_project" ? "#EDE4FF" : "#FFE6D4";
+  const iconColor = type === "office_project" ? "#F478B8" : type === "personal_project" ? "#9260F4" : "#FF9142";
+  const icon = type === "office_project" ? <BriefcaseIcon color={iconColor} width={20} height={20} /> : type === "personal_project" ? <UserIcon color={iconColor} width={20} height={20} /> : <BookIcon color={iconColor} width={20} height={20} />;
   return (
     <View className="flex flex-row items-center justify-between bg-[#FFFFFF] rounded-2xl p-lg gap-md shadow-md shadow-black/10">
-      <View className='w-[34px] h-[34px] bg-[#FFE4F2] rounded-md items-center justify-center'>
-        <BriefcaseIcon color="#F478B8" width={20} height={20} />
+      <View className={`w-[34px] h-[34px] rounded-lg items-center justify-center`} style={{ backgroundColor: backgroundColor }}>
+        {icon}
       </View>
       <View className="flex-1">
         <Text className="font-lexend text-black">{type_name}</Text>
@@ -26,8 +33,8 @@ export default function TaskGroupItem({
         <Host matchContents>
           <CircularProgressIndicator
             progress={completed}
-            trackColor="#EEE9FF"
-            color="#8764FF"
+            trackColor={trackColor}
+            color={color}
             gapSize={0}
             strokeWidth={4}
             modifiers={[graphicsLayer({ scaleX: -1 })]}

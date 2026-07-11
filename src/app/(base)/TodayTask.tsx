@@ -154,6 +154,7 @@ export default function TodayTask() {
                   task_name={task.task_name}
                   status={toTaskItemStatus(task.status)}
                   time={formatTaskTime(task.start_time)}
+                  type={projectsById[task.project_id]?.group_id as "office_project" | "personal_project" | "daily_study" ?? "office_project"}
                   onPress={() =>
                     router.push({
                       pathname: "/(base)/TaskDetail",

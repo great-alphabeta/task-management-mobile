@@ -1,4 +1,6 @@
+import BookIcon from "@/assets/svg/book.svg";
 import BriefcaseIcon from "@/assets/svg/briefcase.svg";
+import UserIcon from "@/assets/svg/user.svg";
 import { Host, LinearProgressIndicator } from '@expo/ui/jetpack-compose';
 import { fillMaxWidth, height } from '@expo/ui/jetpack-compose/modifiers';
 import { Text, View } from "react-native";
@@ -15,13 +17,17 @@ export default function ProjectItem({
   completed?: number;
 }) {
   const type_name = type === "office_project" ? "Office Project" : type === "personal_project" ? "Personal Project" : "Daily Study";
-  const backgroundColor = type === "office_project" ? "#E7F3FF" : type === "personal_project" ? "#FFE9E1" : "#E7F3FF";
+  const color = type === "office_project" ? "#0087FF" : type === "personal_project" ? "#FF7D53" : "#F478B8";
+  const iconColor = type === "office_project" ? "#F478B8" : type === "personal_project" ? "#9260F4" : "#FF9142";
+  const icon = type === "office_project" ? <BriefcaseIcon color={iconColor} width={14} height={14} /> : type === "personal_project" ? <UserIcon color={iconColor} width={14} height={14} /> : <BookIcon color={iconColor} width={14} height={14} />;
+  const backgroundColor = type === "office_project" ? "#E7F3FF" : type === "personal_project" ? "#FFE9E1" : "#EDE4FF";
+  const iconBackground = type === "office_project" ? "#FFE4F2" : type === "personal_project" ? "#EDE4FF" : "#FFE6D4";
   return (
-    <View className="flex flex-col bg-[#E7F3FF] rounded-lg p-lg w-[200px] gap-lg">
+    <View className="flex flex-col rounded-xl p-lg w-[200px] gap-lg" style={{ backgroundColor: backgroundColor }}>
       <View className="flex flex-row items-center justify-between">
         <Text className='text-secondary text-sm font-lexend'>{type_name}</Text>
-        <View className='w-[24px] h-[24px] bg-[#FFE4F2] rounded-md items-center justify-center'>
-          <BriefcaseIcon color="#F478B8" width={14} height={14} />
+        <View className='w-[24px] h-[24px] rounded-md items-center justify-center shadow-md shadow-black/10' style={{ backgroundColor: iconBackground }}>
+          {icon}
         </View>
       </View>
       <Text className='text-black font-lexend'>{name}</Text>
@@ -29,7 +35,7 @@ export default function ProjectItem({
         <Host style={{ width: "100%", height: PROGRESS_HEIGHT }}>
           <LinearProgressIndicator
             progress={completed}
-            color="#0087FF"
+            color={color}
             trackColor="white"
             gapSize={0}
             strokeCap="round"
