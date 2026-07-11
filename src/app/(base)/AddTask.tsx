@@ -7,8 +7,11 @@ import Header from "@/components/Header";
 import RoundedButton from "@/components/RoundedButton";
 import { getAllProjects } from "@/db/projects";
 import { createTask } from "@/db/tasks";
+import { getSelectedTaskDateKey } from "@/store/selectedTaskDate";
 import type { Project, TaskGroupId } from "@/types/database";
+import { combineDateAndTime, formatDisplayDate } from "@/utils/date";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import CalendarIcon from "@/assets/svg/calendar.svg";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
@@ -67,6 +70,7 @@ export default function AddTask() {
   const [endTime, setEndTime] = useState(createDefaultTime(10));
   const [endTimePickerShow, setEndTimePickerShow] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [taskDateKey] = useState(getSelectedTaskDateKey());
 
   const loadProjects = useCallback(async () => {
     const loadedProjects = await getAllProjects();
@@ -116,8 +120,9 @@ export default function AddTask() {
         project_id: selectedProject.project_id,
         task_name: trimmedName,
         task_description: description.trim(),
-        start_time: startTime.toISOString(),
-        end_time: endTime.toISOString(),
+        date: taskDateKey,
+        start_time: combineDateAndTime(taskDateKey, startTime),
+        end_time: combineDateAndTime(taskDateKey, endTime),
         status: "to-do",
       });
 
@@ -210,6 +215,13 @@ export default function AddTask() {
           multiline={true}
           numberOfLines={4}
         />
+      </View>
+      <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+        <CalendarIcon width={24} height={24} color="#5F33E1" />
+        <View className="flex flex-col flex-1">
+          <Text className="text-secondary font-lexend text-sm">Date</Text>
+          <Text className="text-black font-lexend">{formatDisplayDate(taskDateKey)}</Text>
+        </View>
       </View>
       <Pressable onPress={() => setStartTimePickerShow(true)}>
         <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">

@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   task_name TEXT NOT NULL,
   task_description TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  date TEXT NOT NULL DEFAULT '',
   start_time TEXT NOT NULL DEFAULT '',
   end_time TEXT NOT NULL DEFAULT '',
   status TEXT NOT NULL CHECK (status IN ('to-do', 'inprogress', 'done')),
@@ -48,6 +49,10 @@ async function migrateDatabase(db: SQLite.SQLiteDatabase): Promise<void> {
 
   if (!columnNames.has("end_time")) {
     await db.execAsync('ALTER TABLE tasks ADD COLUMN end_time TEXT NOT NULL DEFAULT "";');
+  }
+
+  if (!columnNames.has("date")) {
+    await db.execAsync('ALTER TABLE tasks ADD COLUMN date TEXT NOT NULL DEFAULT "";');
   }
 }
 
