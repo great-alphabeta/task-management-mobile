@@ -1,5 +1,6 @@
 import "../../global.css";
 
+import AppAlertProvider from "@/components/AppAlertProvider";
 import { LexendDeca_400Regular, LexendDeca_600SemiBold, LexendDeca_700Bold, useFonts } from '@expo-google-fonts/lexend-deca';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
@@ -20,11 +21,13 @@ export default function RootLayout() {
 
   return (
     <SafeAreaView className="flex-1">
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(base)" />
-        <Stack.Screen name="OnBoarding" />
-      </Stack>
+      <AppAlertProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(base)" />
+          <Stack.Screen name="OnBoarding" />
+        </Stack>
+      </AppAlertProvider>
     </SafeAreaView>
   );
 }

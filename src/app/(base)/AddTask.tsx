@@ -14,11 +14,12 @@ import { createTask } from "@/db/tasks";
 import { getSelectedTaskDateKey } from "@/store/selectedTaskDate";
 import type { Project, TaskGroupId } from "@/types/database";
 import { combineDateAndTime, formatDisplayDate } from "@/utils/date";
+import { showAlert } from "@/utils/alert";
 import { getTaskGroupTitle } from "@/utils/taskGroup";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
 
 type ProjectOption = Project & {
@@ -101,19 +102,19 @@ export default function AddTask() {
 
   const handleAddTask = async () => {
     if (!selectedProject) {
-      Alert.alert("No project found", "Please create a project before adding a task.");
+      showAlert("No project found", "Please create a project before adding a task.");
       return;
     }
 
     const trimmedName = taskName.trim();
 
     if (!trimmedName) {
-      Alert.alert("Missing task name", "Please enter a task name.");
+      showAlert("Missing task name", "Please enter a task name.");
       return;
     }
 
     if (endTime <= startTime) {
-      Alert.alert("Invalid times", "End time must be after the start time.");
+      showAlert("Invalid times", "End time must be after the start time.");
       return;
     }
 
@@ -133,7 +134,7 @@ export default function AddTask() {
       router.back();
     } catch (error) {
       console.error(error);
-      Alert.alert("Save failed", "Could not save the task. Please try again.");
+      showAlert("Save failed", "Could not save the task. Please try again.");
     } finally {
       setIsSaving(false);
     }

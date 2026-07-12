@@ -2,9 +2,10 @@ import ShadowImage from "@/assets/images/shadow.png";
 import RightIcon from "@/assets/svg/right.svg";
 import RoundedButton from "@/components/RoundedButton";
 import { setupDatabase } from "@/db";
+import { showAlert } from "@/utils/alert";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, Image, Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 
 export default function OnBoarding() {
   const [isSettingUp, setIsSettingUp] = useState(false);
@@ -17,7 +18,7 @@ export default function OnBoarding() {
       router.replace("/(base)/Home");
     } catch (error) {
       console.error(error);
-      Alert.alert("Setup failed", "Could not create the database. Please try again.");
+      showAlert("Setup failed", "Could not create the database. Please try again.");
     } finally {
       setIsSettingUp(false);
     }

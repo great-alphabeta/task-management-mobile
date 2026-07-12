@@ -11,12 +11,13 @@ import { isAiConfigured } from "@/config/ai";
 import { createProject } from "@/db/projects";
 import { suggestTaskGroup } from "@/services/ai";
 import type { TaskGroupId } from "@/types/database";
+import { showAlert } from "@/utils/alert";
 import { imagePickerAssetToDataUri } from "@/utils/image";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import SelectDropdown from 'react-native-select-dropdown';
 
 type TaskGroupOption = {
@@ -72,7 +73,7 @@ export default function AddProject() {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
-      Alert.alert('Permission required', 'Permission to access the media library is required.');
+      showAlert('Permission required', 'Permission to access the media library is required.');
       return;
     }
 
@@ -93,7 +94,7 @@ export default function AddProject() {
     const trimmedName = projectName.trim();
 
     if (!trimmedName) {
-      Alert.alert("Project name required", "Enter a project name before suggesting a group.");
+      showAlert("Project name required", "Enter a project name before suggesting a group.");
       return;
     }
 
@@ -104,15 +105,15 @@ export default function AddProject() {
       const matchedGroup = taskGroups.find((group) => group.id === suggestion.group_id);
 
       if (!matchedGroup) {
-        Alert.alert("Suggestion failed", "AI returned an unknown task group.");
+        showAlert("Suggestion failed", "AI returned an unknown task group.");
         return;
       }
 
       setSelectedTaskGroup(matchedGroup);
-      Alert.alert("Group suggested", suggestion.reason);
+      showAlert("Group suggested", suggestion.reason);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not suggest a task group.";
-      Alert.alert("AI unavailable", message);
+      showAlert("AI unavailable", message);
     } finally {
       setIsSuggestingGroup(false);
     }
@@ -122,12 +123,12 @@ export default function AddProject() {
     const trimmedName = projectName.trim();
 
     if (!trimmedName) {
-      Alert.alert("Missing project name", "Please enter a project name.");
+      showAlert("Missing project name", "Please enter a project name.");
       return;
     }
 
     if (endDate < startDate) {
-      Alert.alert("Invalid dates", "End date must be on or after the start date.");
+      showAlert("Invalid dates", "End date must be on or after the start date.");
       return;
     }
 
@@ -146,7 +147,7 @@ export default function AddProject() {
       router.back();
     } catch (error) {
       console.error(error);
-      Alert.alert("Save failed", "Could not save the project. Please try again.");
+      showAlert("Save failed", "Could not save the project. Please try again.");
     } finally {
       setIsSaving(false);
     }

@@ -5,8 +5,9 @@ import {
   improveDescription,
   summarizeDescription,
 } from "@/services/ai";
+import { showAlert } from "@/utils/alert";
 import { useState } from "react";
-import { ActivityIndicator, Alert, Pressable, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
 
 type AiDescriptionFieldProps = {
   label: string;
@@ -56,10 +57,10 @@ export default function AiDescriptionField({
     try {
       const result = await action();
       onChangeText(result);
-      Alert.alert("AI updated", successMessage);
+      showAlert("AI updated", successMessage);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Something went wrong.";
-      Alert.alert("AI unavailable", message);
+      showAlert("AI unavailable", message);
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +68,7 @@ export default function AiDescriptionField({
 
   const handleGenerate = () => {
     if (!contextName.trim()) {
-      Alert.alert(
+      showAlert(
         "Name required",
         `Enter a ${contextLabel} name before generating a description.`,
       );
@@ -84,7 +85,7 @@ export default function AiDescriptionField({
 
   const handleImprove = () => {
     if (!value.trim()) {
-      Alert.alert("Description required", "Add a description to improve first.");
+      showAlert("Description required", "Add a description to improve first.");
       return;
     }
 
@@ -96,12 +97,12 @@ export default function AiDescriptionField({
 
   const handleSummarize = () => {
     if (!value.trim()) {
-      Alert.alert("Description required", "Add a description to summarize first.");
+      showAlert("Description required", "Add a description to summarize first.");
       return;
     }
 
     if (value.trim().length < 80) {
-      Alert.alert("Already short", "This description is already concise.");
+      showAlert("Already short", "This description is already concise.");
       return;
     }
 

@@ -12,10 +12,11 @@ import { getAllProjects } from "@/db/projects";
 import { deleteTask, getTaskById, updateTask } from "@/db/tasks";
 import type { Project, TaskGroupId, TaskStatus } from "@/types/database";
 import { combineDateAndTime, formatDateKey, formatDisplayDate } from "@/utils/date";
+import { showAlert } from "@/utils/alert";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
-import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
 
 type ProjectOption = Project & {
@@ -95,7 +96,7 @@ export default function TaskDetail() {
     const parsedTaskId = Number(taskId);
 
     if (!parsedTaskId) {
-      Alert.alert("Task not found", "This task could not be loaded.");
+      showAlert("Task not found", "This task could not be loaded.");
       router.back();
       return;
     }
@@ -106,7 +107,7 @@ export default function TaskDetail() {
     ]);
 
     if (!task) {
-      Alert.alert("Task not found", "This task could not be loaded.");
+      showAlert("Task not found", "This task could not be loaded.");
       router.back();
       return;
     }
@@ -148,19 +149,19 @@ export default function TaskDetail() {
     const parsedTaskId = Number(taskId);
 
     if (!parsedTaskId || !selectedProject) {
-      Alert.alert("Missing project", "Please select a project.");
+      showAlert("Missing project", "Please select a project.");
       return;
     }
 
     const trimmedName = taskName.trim();
 
     if (!trimmedName) {
-      Alert.alert("Missing task name", "Please enter a task name.");
+      showAlert("Missing task name", "Please enter a task name.");
       return;
     }
 
     if (endTime <= startTime) {
-      Alert.alert("Invalid times", "End time must be after the start time.");
+      showAlert("Invalid times", "End time must be after the start time.");
       return;
     }
 
@@ -180,7 +181,7 @@ export default function TaskDetail() {
       router.back();
     } catch (error) {
       console.error(error);
-      Alert.alert("Save failed", "Could not update the task. Please try again.");
+      showAlert("Save failed", "Could not update the task. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -193,7 +194,7 @@ export default function TaskDetail() {
       return;
     }
 
-    Alert.alert("Delete task", "Are you sure you want to delete this task?", [
+    showAlert("Delete task", "Are you sure you want to delete this task?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Delete",
@@ -205,14 +206,14 @@ export default function TaskDetail() {
             const deleted = await deleteTask(parsedTaskId);
 
             if (!deleted) {
-              Alert.alert("Delete failed", "Could not delete the task. Please try again.");
+              showAlert("Delete failed", "Could not delete the task. Please try again.");
               return;
             }
 
             router.back();
           } catch (error) {
             console.error(error);
-            Alert.alert("Delete failed", "Could not delete the task. Please try again.");
+            showAlert("Delete failed", "Could not delete the task. Please try again.");
           } finally {
             setIsDeleting(false);
           }

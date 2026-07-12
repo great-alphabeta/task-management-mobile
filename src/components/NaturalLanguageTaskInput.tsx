@@ -6,9 +6,10 @@ import {
   resolveProjectId,
 } from "@/services/ai";
 import type { Project } from "@/types/database";
+import { showAlert } from "@/utils/alert";
 import { combineDateAndTime, formatDisplayDate } from "@/utils/date";
 import { useState } from "react";
-import { ActivityIndicator, Alert, Pressable, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
 
 type NaturalLanguageTaskInputProps = {
   projects: Project[];
@@ -33,12 +34,12 @@ export default function NaturalLanguageTaskInput({
     const trimmed = input.trim();
 
     if (!trimmed) {
-      Alert.alert("Enter a task", 'Try something like "Design review tomorrow at 3pm".');
+      showAlert("Enter a task", 'Try something like "Design review tomorrow at 3pm".');
       return;
     }
 
     if (projects.length === 0) {
-      Alert.alert("No projects", "Create a project before adding tasks.");
+      showAlert("No projects", "Create a project before adding tasks.");
       return;
     }
 
@@ -71,13 +72,13 @@ export default function NaturalLanguageTaskInput({
 
       setInput("");
       onTaskCreated(parsed.date);
-      Alert.alert(
+      showAlert(
         "Task created",
         `"${parsed.task_name}" was scheduled for ${formatDisplayDate(parsed.date)}.`,
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not create the task.";
-      Alert.alert("AI task creation failed", message);
+      showAlert("AI task creation failed", message);
     } finally {
       setIsLoading(false);
     }
