@@ -39,6 +39,26 @@ CREATE TABLE IF NOT EXISTS app_settings (
 
 const INITIALIZED_KEY = "initialized";
 
+function isDatabaseConnectionError(error: unknown): boolean {
+  const message = error instanceof Error
+    ? `${error.name} ${error.message}`
+    : String(error);
+
+  const normalized = message.toLowerCase();
+
+  return (
+    normalized.includes("nullpointerexception")
+    || normalized.includes("database is closed")
+    || normalized.includes("database not open")
+    || normalized.includes("not open")
+    || normalized.includes("cannot run")
+    || normalized.includes("prepareasync")
+    || normalized.includes("access to closed")
+    || normalized.includes("connection")
+    || normalized.includes("no connection")
+  );
+}
+
 async function migrateDatabase(db: SQLite.SQLiteDatabase): Promise<void> {
   const columns = await db.getAllAsync<{ name: string }>("PRAGMA table_info(tasks)");
   const columnNames = new Set(columns.map((column) => column.name));
@@ -56,9 +76,33 @@ async function migrateDatabase(db: SQLite.SQLiteDatabase): Promise<void> {
   }
 }
 
+async function verifyDatabaseConnection(db: SQLite.SQLiteDatabase): Promise<void> {
+  await db.getFirstAsync("SELECT 1 AS ok");
+}
+
+async function createDatabaseConnection(): Promise<SQLite.SQLiteDatabase> {
+  const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+  await verifyDatabaseConnection(db);
+  return db;
+}
+
+async function reconnectDatabase(): Promise<SQLite.SQLiteDatabase> {
+  if (database) {
+    try {
+      await database.closeAsync();
+    } catch {
+      // Ignore close errors on a broken connection.
+    }
+  }
+
+  database = null;
+  database = await createDatabaseConnection();
+  return database;
+}
+
 async function openDatabase(): Promise<SQLite.SQLiteDatabase> {
   if (!database) {
-    database = await SQLite.openDatabaseAsync(DATABASE_NAME);
+    database = await createDatabaseConnection();
   }
 
   return database;
@@ -80,34 +124,52 @@ export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
   return initDatabase();
 }
 
-export async function isDatabaseInitialized(): Promise<boolean> {
+export async function executeDatabaseOperation<T>(
+  operation: (db: SQLite.SQLiteDatabase) => Promise<T>,
+): Promise<T> {
   try {
-    const db = await openDatabase();
-    const table = await db.getFirstAsync<{ name: string }>(
-      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'app_settings'",
-    );
-
-    if (!table) {
-      return false;
+    const db = await getDatabase();
+    return await operation(db);
+  } catch (error) {
+    if (!isDatabaseConnectionError(error)) {
+      throw error;
     }
 
-    const row = await db.getFirstAsync<{ value: string }>(
-      "SELECT value FROM app_settings WHERE key = ?",
-      INITIALIZED_KEY,
-    );
+    const db = await reconnectDatabase();
+    return await operation(db);
+  }
+}
 
-    return row?.value === "1";
+export async function isDatabaseInitialized(): Promise<boolean> {
+  try {
+    return await executeDatabaseOperation(async (db) => {
+      const table = await db.getFirstAsync<{ name: string }>(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'app_settings'",
+      );
+
+      if (!table) {
+        return false;
+      }
+
+      const row = await db.getFirstAsync<{ value: string }>(
+        "SELECT value FROM app_settings WHERE key = ?",
+        INITIALIZED_KEY,
+      );
+
+      return row?.value === "1";
+    });
   } catch {
     return false;
   }
 }
 
 export async function markDatabaseInitialized(): Promise<void> {
-  const db = await getDatabase();
-  await db.runAsync(
-    "INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)",
-    INITIALIZED_KEY,
-    "1",
+  await executeDatabaseOperation((db) =>
+    db.runAsync(
+      "INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)",
+      INITIALIZED_KEY,
+      "1",
+    ),
   );
 }
 
