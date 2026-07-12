@@ -1,5 +1,6 @@
 import type { Project, TaskGroupId } from "@/types/database";
 import { formatDateKey } from "@/utils/date";
+import { formatReferenceDateLabel, resolveTaskDate } from "@/utils/naturalLanguageDate";
 import { AiServiceError, chatCompletion, extractJsonObject } from "./client";
 import type { DailySummaryTask, ParsedNaturalLanguageTask, TaskGroupSuggestion } from "./types";
 
@@ -11,10 +12,6 @@ function cleanText(text: string): string {
 
 function isValidTaskGroupId(value: string): value is TaskGroupId {
   return TASK_GROUPS.includes(value as TaskGroupId);
-}
-
-function isValidDateKey(value: string): boolean {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value);
 }
 
 function isValidTime(value: string): boolean {
@@ -170,17 +167,18 @@ export async function parseNaturalLanguageTask(
   referenceDateKey: string,
 ): Promise<ParsedNaturalLanguageTask> {
   const projectNames = projects.map((project) => project.project_name);
+  const referenceLabel = formatReferenceDateLabel(referenceDateKey);
 
   const content = await chatCompletion([
     {
       role: "system",
       content:
-        'Parse natural-language task input into JSON only: {"task_name":"","task_description":"","project_name":null,"date":"YYYY-MM-DD","start_time":"HH:mm","end_time":"HH:mm"}. Use 24-hour time. If no end time is given, set end_time one hour after start_time. If no project is mentioned, use null. If no date is mentioned, use the reference date. project_name must match one of the provided projects when possible.',
+        'Parse natural-language task input into JSON only: {"task_name":"","task_description":"","project_name":null,"date":"YYYY-MM-DD","start_time":"HH:mm","end_time":"HH:mm"}. Use 24-hour time. Resolve relative dates from the reference date: "today" = reference date, "tomorrow" = reference date + 1 day, "next Friday" = the next occurrence after the reference date. Resolve month/day phrases like "Jun 30" to YYYY-MM-DD using the reference year unless a year is given. Always output date as YYYY-MM-DD. If no end time is given, set end_time one hour after start_time. If no project is mentioned, use null. project_name must match one of the provided projects when possible.',
     },
     {
       role: "user",
       content: [
-        `Reference date: ${referenceDateKey}`,
+        `Reference date: ${referenceLabel}`,
         `Available projects: ${projectNames.length > 0 ? projectNames.join(", ") : "none"}`,
         `Input: ${input.trim()}`,
       ].join("\n"),
@@ -193,9 +191,7 @@ export async function parseNaturalLanguageTask(
     throw new AiServiceError("AI could not determine a task name from that input.");
   }
 
-  if (!isValidDateKey(parsed.date)) {
-    parsed.date = referenceDateKey;
-  }
+  parsed.date = resolveTaskDate(input, referenceDateKey, parsed.date);
 
   if (!isValidTime(parsed.start_time)) {
     parsed.start_time = "09:00";

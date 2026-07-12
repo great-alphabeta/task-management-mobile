@@ -6,14 +6,14 @@ import {
   resolveProjectId,
 } from "@/services/ai";
 import type { Project } from "@/types/database";
-import { combineDateAndTime } from "@/utils/date";
+import { combineDateAndTime, formatDisplayDate } from "@/utils/date";
 import { useState } from "react";
 import { ActivityIndicator, Alert, Pressable, Text, TextInput, View } from "react-native";
 
 type NaturalLanguageTaskInputProps = {
   projects: Project[];
   defaultDateKey: string;
-  onTaskCreated: () => void;
+  onTaskCreated: (createdDateKey: string) => void;
 };
 
 export default function NaturalLanguageTaskInput({
@@ -70,8 +70,11 @@ export default function NaturalLanguageTaskInput({
       });
 
       setInput("");
-      onTaskCreated();
-      Alert.alert("Task created", `"${parsed.task_name}" was added to your schedule.`);
+      onTaskCreated(parsed.date);
+      Alert.alert(
+        "Task created",
+        `"${parsed.task_name}" was scheduled for ${formatDisplayDate(parsed.date)}.`,
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not create the task.";
       Alert.alert("AI task creation failed", message);

@@ -1,5 +1,7 @@
 import BookIcon from "@/assets/svg/book.svg";
 import BriefcaseIcon from "@/assets/svg/briefcase.svg";
+import CalendarIcon from "@/assets/svg/calendar.svg";
+import ClockIcon from "@/assets/svg/clock.svg";
 import DownIcon from "@/assets/svg/down.svg";
 import UserIcon from "@/assets/svg/user.svg";
 import Header from "@/components/Header";
@@ -9,6 +11,8 @@ import TaskStatusBadge, { getTaskStatusStyle } from "@/components/TaskStatusBadg
 import { getAllProjects } from "@/db/projects";
 import { deleteTask, getTaskById, updateTask } from "@/db/tasks";
 import type { Project, TaskGroupId, TaskStatus } from "@/types/database";
+import { combineDateAndTime, formatDateKey, formatDisplayDate } from "@/utils/date";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
 import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
@@ -53,6 +57,24 @@ function getTaskGroupStyle(groupId: TaskGroupId) {
   }
 }
 
+function timeFromIso(isoTime: string, fallbackHours: number): Date {
+  if (!isoTime) {
+    const date = new Date();
+    date.setHours(fallbackHours, 0, 0, 0);
+    return date;
+  }
+
+  return new Date(isoTime);
+}
+
+function formatTime(date: Date): string {
+  return date.toLocaleString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 export default function TaskDetail() {
   const { taskId } = useLocalSearchParams<{ taskId: string }>();
   const [projects, setProjects] = useState<ProjectOption[]>([]);
@@ -60,6 +82,11 @@ export default function TaskDetail() {
   const [taskName, setTaskName] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<TaskStatus>("to-do");
+  const [taskDateKey, setTaskDateKey] = useState(formatDateKey(new Date()));
+  const [startTime, setStartTime] = useState(new Date());
+  const [startTimePickerShow, setStartTimePickerShow] = useState(false);
+  const [endTime, setEndTime] = useState(new Date());
+  const [endTimePickerShow, setEndTimePickerShow] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -97,6 +124,16 @@ export default function TaskDetail() {
     setTaskName(task.task_name);
     setDescription(task.task_description);
     setStatus(task.status);
+
+    const dateKey = task.date || (task.start_time
+      ? formatDateKey(new Date(task.start_time))
+      : formatDateKey(new Date()));
+    const loadedStartTime = timeFromIso(task.start_time, 9);
+    const loadedEndTime = timeFromIso(task.end_time, loadedStartTime.getHours() + 1);
+
+    setTaskDateKey(dateKey);
+    setStartTime(loadedStartTime);
+    setEndTime(loadedEndTime);
     setIsLoading(false);
   }, [taskId]);
 
@@ -122,6 +159,11 @@ export default function TaskDetail() {
       return;
     }
 
+    if (endTime <= startTime) {
+      Alert.alert("Invalid times", "End time must be after the start time.");
+      return;
+    }
+
     setIsSaving(true);
 
     try {
@@ -129,6 +171,9 @@ export default function TaskDetail() {
         project_id: selectedProject.project_id,
         task_name: trimmedName,
         task_description: description.trim(),
+        date: taskDateKey,
+        start_time: combineDateAndTime(taskDateKey, startTime),
+        end_time: combineDateAndTime(taskDateKey, endTime),
         status,
       });
 
@@ -276,6 +321,37 @@ export default function TaskDetail() {
               numberOfLines={4}
             />
           </View>
+          <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+            <CalendarIcon width={24} height={24} color="#5F33E1" />
+            <View className="flex flex-col flex-1">
+              <Text className="text-secondary font-lexend text-sm">Date</Text>
+              <Text className="text-black font-lexend">{formatDisplayDate(taskDateKey)}</Text>
+            </View>
+          </View>
+          <Pressable onPress={() => setStartTimePickerShow(true)}>
+            <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+              <ClockIcon width={24} height={24} color="#5F33E1" />
+              <View className="flex flex-col flex-1">
+                <Text className="text-secondary font-lexend text-sm">Start Time</Text>
+                <Text className="text-black font-lexend">{formatTime(startTime)}</Text>
+              </View>
+              <View>
+                <DownIcon width={24} height={24} color="black" />
+              </View>
+            </View>
+          </Pressable>
+          <Pressable onPress={() => setEndTimePickerShow(true)}>
+            <View className="flex flex-row gap-sm items-center p-lg bg-[#FFFFFF] shadow-md shadow-black/10 rounded-lg">
+              <ClockIcon width={24} height={24} color="#5F33E1" />
+              <View className="flex flex-col flex-1">
+                <Text className="text-secondary font-lexend text-sm">End Time</Text>
+                <Text className="text-black font-lexend">{formatTime(endTime)}</Text>
+              </View>
+              <View>
+                <DownIcon width={24} height={24} color="black" />
+              </View>
+            </View>
+          </Pressable>
           <View className="w-full">
             <SelectDropdown
               data={STATUS_OPTIONS}
@@ -314,6 +390,34 @@ export default function TaskDetail() {
             </Text>
           </Pressable>
         </ScrollView>
+        {startTimePickerShow && (
+          <DateTimePicker
+            testID="startTimePicker"
+            value={startTime}
+            mode="time"
+            onValueChange={(_event, selectedTime) => {
+              if (selectedTime) {
+                setStartTime(selectedTime);
+              }
+              setStartTimePickerShow(false);
+            }}
+            onDismiss={() => setStartTimePickerShow(false)}
+          />
+        )}
+        {endTimePickerShow && (
+          <DateTimePicker
+            testID="endTimePicker"
+            value={endTime}
+            mode="time"
+            onValueChange={(_event, selectedTime) => {
+              if (selectedTime) {
+                setEndTime(selectedTime);
+              }
+              setEndTimePickerShow(false);
+            }}
+            onDismiss={() => setEndTimePickerShow(false)}
+          />
+        )}
       </View>
     </ScreenBackground>
   );

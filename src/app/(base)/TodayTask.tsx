@@ -8,7 +8,7 @@ import { getAllProjects } from "@/db/projects";
 import { getTasksByDate } from "@/db/tasks";
 import { setSelectedTaskDate } from "@/store/selectedTaskDate";
 import type { Project, Task, TaskStatus } from "@/types/database";
-import { formatDateKey, isSameDay } from "@/utils/date";
+import { formatDateKey, isSameDay, parseDateKey } from "@/utils/date";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
@@ -151,7 +151,11 @@ export default function TodayTask() {
           <NaturalLanguageTaskInput
             projects={projects}
             defaultDateKey={formatDateKey(selectedDate)}
-            onTaskCreated={loadTasks}
+            onTaskCreated={(createdDateKey) => {
+              const date = parseDateKey(createdDateKey);
+              setSelectedDate(date);
+              setSelectedTaskDate(date);
+            }}
           />
           <ScrollView className="flex-1" contentContainerClassName="flex flex-col gap-md pb-[100px]" showsVerticalScrollIndicator={false}>
             {filteredTasks.length > 0 ? (
