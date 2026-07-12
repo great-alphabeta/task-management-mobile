@@ -1,4 +1,5 @@
 import { File } from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import type { ImagePickerAsset } from "expo-image-picker";
 
 function guessMimeType(uri: string, mimeType?: string | null): string {
@@ -28,8 +29,17 @@ function toDataUri(base64: string, mimeType: string): string {
 }
 
 async function fileUriToDataUri(uri: string, mimeType?: string | null): Promise<string> {
-  const base64 = await new File(uri).base64();
-  return toDataUri(base64, guessMimeType(uri, mimeType));
+  const resolvedMimeType = guessMimeType(uri, mimeType);
+
+  try {
+    const base64 = await new File(uri).base64();
+    return toDataUri(base64, resolvedMimeType);
+  } catch {
+    const base64 = await FileSystem.readAsStringAsync(uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+    return toDataUri(base64, resolvedMimeType);
+  }
 }
 
 export async function imagePickerAssetToDataUri(asset: ImagePickerAsset): Promise<string | null> {

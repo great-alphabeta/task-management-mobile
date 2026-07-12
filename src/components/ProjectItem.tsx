@@ -1,8 +1,7 @@
 import BookIcon from "@/assets/svg/book.svg";
 import BriefcaseIcon from "@/assets/svg/briefcase.svg";
 import UserIcon from "@/assets/svg/user.svg";
-import { Host, LinearProgressIndicator } from '@expo/ui/jetpack-compose';
-import { fillMaxWidth, height } from '@expo/ui/jetpack-compose/modifiers';
+import LinearProgressBar from "@/components/progress/LinearProgressBar";
 import { Text, View } from "react-native";
 
 const PROGRESS_HEIGHT = 6;
@@ -32,17 +31,12 @@ export default function ProjectItem({
       </View>
       <Text className='text-black font-lexend'>{name}</Text>
       <View className="w-full">
-        <Host style={{ width: "100%", height: PROGRESS_HEIGHT }}>
-          <LinearProgressIndicator
-            progress={completed}
-            color={color}
-            trackColor="white"
-            gapSize={0}
-            strokeCap="round"
-            drawStopIndicator={{ stopSize: 0 }}
-            modifiers={[fillMaxWidth(), height(PROGRESS_HEIGHT)]}
-          />
-        </Host>
+        <LinearProgressBar
+          progress={completed}
+          color={color}
+          trackColor="white"
+          height={PROGRESS_HEIGHT}
+        />
       </View>
     </View>
   );

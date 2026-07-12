@@ -13,7 +13,7 @@ import { deleteTask, getTaskById, updateTask } from "@/db/tasks";
 import type { Project, TaskGroupId, TaskStatus } from "@/types/database";
 import { combineDateAndTime, formatDateKey, formatDisplayDate } from "@/utils/date";
 import { showAlert } from "@/utils/alert";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import FormDateTimePicker from "@/components/FormDateTimePicker";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
 import { Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
@@ -391,34 +391,22 @@ export default function TaskDetail() {
             </Text>
           </Pressable>
         </ScrollView>
-        {startTimePickerShow && (
-          <DateTimePicker
-            testID="startTimePicker"
-            value={startTime}
-            mode="time"
-            onValueChange={(_event, selectedTime) => {
-              if (selectedTime) {
-                setStartTime(selectedTime);
-              }
-              setStartTimePickerShow(false);
-            }}
-            onDismiss={() => setStartTimePickerShow(false)}
-          />
-        )}
-        {endTimePickerShow && (
-          <DateTimePicker
-            testID="endTimePicker"
-            value={endTime}
-            mode="time"
-            onValueChange={(_event, selectedTime) => {
-              if (selectedTime) {
-                setEndTime(selectedTime);
-              }
-              setEndTimePickerShow(false);
-            }}
-            onDismiss={() => setEndTimePickerShow(false)}
-          />
-        )}
+        <FormDateTimePicker
+          visible={startTimePickerShow}
+          testID="startTimePicker"
+          value={startTime}
+          mode="time"
+          onConfirm={setStartTime}
+          onClose={() => setStartTimePickerShow(false)}
+        />
+        <FormDateTimePicker
+          visible={endTimePickerShow}
+          testID="endTimePicker"
+          value={endTime}
+          mode="time"
+          onConfirm={setEndTime}
+          onClose={() => setEndTimePickerShow(false)}
+        />
       </View>
     </ScreenBackground>
   );

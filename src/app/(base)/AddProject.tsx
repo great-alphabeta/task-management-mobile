@@ -13,7 +13,7 @@ import { suggestTaskGroup } from "@/services/ai";
 import type { TaskGroupId } from "@/types/database";
 import { showAlert } from "@/utils/alert";
 import { imagePickerAssetToDataUri } from "@/utils/image";
-import DateTimePicker from '@react-native-community/datetimepicker';
+import FormDateTimePicker from "@/components/FormDateTimePicker";
 import * as ImagePicker from 'expo-image-picker';
 import { router } from "expo-router";
 import { useState } from "react";
@@ -264,34 +264,22 @@ export default function AddProject() {
             disabled={isSaving}
           />
         </ScrollView>
-        {startDatePickerShow && (
-          <DateTimePicker
-            testID="dateTimePicker"
-            value={startDate}
-            mode='date'
-            onValueChange={(_event, selectedDate) => {
-              if (selectedDate) {
-                setStartDate(selectedDate);
-              }
-              setStartDatePickerShow(false);
-            }}
-            onDismiss={() => setStartDatePickerShow(false)}
-          />
-        )}
-        {endDatePickerShow && (
-          <DateTimePicker
-            testID="dateTimePicker"
-            value={endDate}
-            mode='date'
-            onValueChange={(_event, selectedDate) => {
-              if (selectedDate) {
-                setEndDate(selectedDate);
-              }
-              setEndDatePickerShow(false);
-            }}
-            onDismiss={() => setEndDatePickerShow(false)}
-          />
-        )}
+        <FormDateTimePicker
+          visible={startDatePickerShow}
+          testID="dateTimePicker"
+          value={startDate}
+          mode="date"
+          onConfirm={setStartDate}
+          onClose={() => setStartDatePickerShow(false)}
+        />
+        <FormDateTimePicker
+          visible={endDatePickerShow}
+          testID="dateTimePicker"
+          value={endDate}
+          mode="date"
+          onConfirm={setEndDate}
+          onClose={() => setEndDatePickerShow(false)}
+        />
       </View>
     </ScreenBackground>
   );

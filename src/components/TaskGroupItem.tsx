@@ -1,9 +1,10 @@
 import BookIcon from "@/assets/svg/book.svg";
 import BriefcaseIcon from "@/assets/svg/briefcase.svg";
 import UserIcon from "@/assets/svg/user.svg";
-import { CircularProgressIndicator, Host } from "@expo/ui/jetpack-compose";
-import { graphicsLayer } from "@expo/ui/jetpack-compose/modifiers";
+import CircularProgressRing from "@/components/progress/CircularProgressRing";
 import { Text, View } from "react-native";
+
+const PROGRESS_SIZE = 44;
 
 export default function TaskGroupItem({
   type = "office_project",
@@ -29,17 +30,14 @@ export default function TaskGroupItem({
         <Text className="font-lexend text-black">{type_name}</Text>
         <Text className="font-lexend text-secondary text-sm">{task_count} tasks</Text>
       </View>
-      <View>
-        <Host matchContents>
-          <CircularProgressIndicator
-            progress={completed}
-            trackColor={trackColor}
-            color={color}
-            gapSize={0}
-            strokeWidth={4}
-            modifiers={[graphicsLayer({ scaleX: -1 })]}
-          />
-        </Host>
+      <View style={{ width: PROGRESS_SIZE, height: PROGRESS_SIZE }}>
+        <CircularProgressRing
+          progress={completed}
+          size={PROGRESS_SIZE}
+          trackColor={trackColor}
+          color={color}
+          strokeWidth={4}
+        />
         <View className="absolute inset-0 items-center justify-center" pointerEvents="none">
           <Text className="font-lexend text-black text-sm">
             {Math.round(completed * 100)}%

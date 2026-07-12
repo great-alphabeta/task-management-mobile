@@ -1,5 +1,6 @@
 import NotificationIcon from "@/assets/svg/notification.svg";
 import { DailyAiSummaryText, useDailyAiSummary } from "@/components/DailyAiSummary";
+import CircularProgressRing from "@/components/progress/CircularProgressRing";
 import ProjectItem from "@/components/ProjectItem";
 import RoundedButton from "@/components/RoundedButton";
 import ScreenBackground from "@/components/ScreenBackground";
@@ -7,8 +8,6 @@ import TaskGroupItem from "@/components/TaskGroupItem";
 import { getAllProjects } from "@/db/projects";
 import { getAllTasks } from "@/db/tasks";
 import type { Project, Task, TaskGroupId } from "@/types/database";
-import { CircularProgressIndicator, Host } from '@expo/ui/jetpack-compose';
-import { graphicsLayer, size } from '@expo/ui/jetpack-compose/modifiers';
 import { MaterialIcons } from '@react-native-vector-icons/material-icons';
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
@@ -157,16 +156,13 @@ export default function Home() {
           <View
             style={{ width: PROGRESS_SIZE, height: PROGRESS_SIZE }}
           >
-            <Host matchContents>
-              <CircularProgressIndicator
-                progress={overallProgress}
-                color="#EEE9FF"
-                trackColor="#8764FF"
-                gapSize={0}
-                strokeWidth={8}
-                modifiers={[size(PROGRESS_SIZE, PROGRESS_SIZE), graphicsLayer({ scaleX: -1 })]}
-              />
-            </Host>
+            <CircularProgressRing
+              progress={overallProgress}
+              size={PROGRESS_SIZE}
+              color="#EEE9FF"
+              trackColor="#8764FF"
+              strokeWidth={8}
+            />
             <View className="absolute inset-0 items-center justify-center" pointerEvents="none">
               <Text className="font-lexend-semibold text-white text-sm">
                 {Math.round(overallProgress * 100)}%
